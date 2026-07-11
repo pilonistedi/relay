@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relay - Access Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* Smooth height transitions for the card wrapper */
+      .form-container-wrapper {
+        transition: height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-neutral-50 min-h-screen flex items-center justify-center p-4 selection:bg-neutral-900 selection:text-white"
+  >
+    <div
+      class="w-full max-w-[380px] bg-white border border-neutral-200/70 rounded-2xl shadow-xl shadow-neutral-200/40 p-6 relative overflow-hidden transition-all duration-300 hover:border-neutral-300/80"
+    >
+      <div class="text-center mb-6">
+        <div
+          class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-neutral-900 text-white text-sm mb-3 shadow-md shadow-neutral-900/10"
+        >
+          <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <h2
+          id="auth-title"
+          class="text-base font-bold text-neutral-800 transition-all duration-300"
+        >
+          Welcome back to Relay
+        </h2>
+        <p
+          id="auth-subtitle"
+          class="text-[11px] text-neutral-400 mt-1 transition-all duration-300"
+        >
+          Enter your details to access your groups
+        </p>
+      </div>
+
+      <div
+        class="relative bg-neutral-100 p-1 rounded-xl flex mb-6 border border-neutral-200/30"
+      >
+        <div
+          id="slider-backdrop"
+          class="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-lg shadow-sm border border-neutral-200/50 transition-all duration-300 ease-out transform translate-x-0"
+        ></div>
+
+        <button
+          id="tab-login"
+          onclick="switchMode('login')"
+          class="relative z-10 w-1/2 py-1.5 text-[11px] font-bold text-neutral-800 transition-colors duration-300 cursor-pointer focus:outline-none text-center"
+        >
+          Sign In
+        </button>
+        <button
+          id="tab-signup"
+          onclick="switchMode('signup')"
+          class="relative z-10 w-1/2 py-1.5 text-[11px] font-bold text-neutral-400 transition-colors duration-300 cursor-pointer focus:outline-none text-center"
+        >
+          Create Account
+        </button>
+      </div>
+
+      <div
+        class="relative overflow-hidden form-container-wrapper"
+        id="form-wrapper"
+      >
+        <div
+          id="forms-slider"
+          class="flex w-[200%] h-full transition-transform duration-500 cubic-bezier(0.25, 1, 0.5, 1) transform translate-x-0"
+        >
+          <form
+            id="login-form"
+            class="w-1/2 pr-2 space-y-3.5 flex flex-col justify-start"
+            onsubmit="handleSubmit(event, 'login')"
+          >
+            <div>
+              <label
+                class="text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1"
+              >
+                <i class="fa-regular fa-user text-[9px]"></i> Username
+              </label>
+              <input
+                id="login-username"
+                type="text"
+                required
+                class="w-full mt-1.5 p-2 bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-medium text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 focus:bg-white transition"
+                placeholder="alex_runner"
+              />
+            </div>
+            <div>
+              <div class="flex justify-between items-center">
+                <label
+                  class="text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1"
+                >
+                  <i class="fa-solid fa-lock text-[9px]"></i> Password
+                </label>
+                <a
+                  href="#"
+                  class="text-[10px] text-neutral-400 hover:text-neutral-600 transition"
+                  >Forgot?</a
+                >
+              </div>
+              <input
+                id="login-password"
+                type="password"
+                required
+                class="w-full mt-1.5 p-2 bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-medium text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 focus:bg-white transition"
+                placeholder="••••••••"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold py-2.5 rounded-lg transition-all transform active:scale-[0.98] mt-2 shadow-sm cursor-pointer"
+            >
+              Sign In & Continue
+            </button>
+          </form>
+
+          <form
+            id="signup-form"
+            class="w-1/2 pl-2 space-y-3.5 flex flex-col justify-start"
+            onsubmit="handleSubmit(event, 'signup')"
+          >
+            <div>
+              <label
+                class="text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1"
+              >
+                <i class="fa-regular fa-user text-[9px]"></i> Email
+              </label>
+              <input
+                id="signup-email"
+                type="email"
+                required
+                class="w-full mt-1.5 p-2 bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-medium text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 focus:bg-white transition"
+                placeholder="someone@example.com"
+              />
+            </div>
+            <div>
+              <label
+                class="text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1"
+              >
+                <i class="fa-regular fa-user text-[9px]"></i> Choose Username
+              </label>
+              <input
+                id="signup-username"
+                type="text"
+                required
+                class="w-full mt-1.5 p-2 bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-medium text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 focus:bg-white transition"
+                placeholder="new_peer"
+              />
+              <span class="text-[9px] text-neutral-400 font-mono block mt-1"
+                ><i class="fa-solid fa-circle-info text-[8px]"></i> This will
+                identify you in the group.</span
+              >
+            </div>
+            <div>
+              <label
+                class="text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1"
+              >
+                <i class="fa-solid fa-lock text-[9px]"></i> Create Password
+              </label>
+              <input
+                id="signup-password"
+                type="password"
+                required
+                class="w-full mt-1.5 p-2 bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-medium text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 focus:bg-white transition"
+                placeholder="••••••••"
+              />
+            </div>
+            <div>
+              <label
+                class="text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1"
+              >
+                <i class="fa-solid fa-shield text-[9px]"></i> Confirm Password
+              </label>
+              <input
+                id="signup-confirm-password"
+                type="password"
+                required
+                class="w-full mt-1.5 p-2 bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-medium text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 focus:bg-white transition"
+                placeholder="••••••••"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-2.5 rounded-lg transition-all transform active:scale-[0.98] mt-2 shadow-sm cursor-pointer"
+            >
+              Register Account
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const sliderBackdrop = document.getElementById("slider-backdrop");
+      const formsSlider = document.getElementById("forms-slider");
+      const formWrapper = document.getElementById("form-wrapper");
+      const tabLogin = document.getElementById("tab-login");
+      const tabSignup = document.getElementById("tab-signup");
+      const authTitle = document.getElementById("auth-title");
+      const authSubtitle = document.getElementById("auth-subtitle");
+
+      const loginForm = document.getElementById("login-form");
+      const signupForm = document.getElementById("signup-form");
+
+      // Set initial dynamic height on load
+      window.addEventListener("DOMContentLoaded", () => {
+        formWrapper.style.height = `${loginForm.scrollHeight}px`;
+      });
+
+      function switchMode(mode) {
+        if (mode === "login") {
+          // Slide Tab Indicator Left
+          sliderBackdrop.style.transform = "translateX(0)";
+
+          // Slide Forms Container Left
+          formsSlider.style.transform = "translateX(0)";
+
+          // Animate Container Height smoothly based on true content height
+          formWrapper.style.height = `${loginForm.scrollHeight}px`;
+
+          // Adjust Text Styling
+          tabLogin.classList.replace("text-neutral-400", "text-neutral-800");
+          tabSignup.classList.replace("text-neutral-800", "text-neutral-400");
+
+          // Morph Header text content smoothly
+          authTitle.innerText = "Welcome back to Relay";
+          authSubtitle.innerText = "Enter your details to access your groups";
+        } else {
+          // Slide Tab Indicator Right
+          sliderBackdrop.style.transform = "translateX(100%)";
+          sliderBackdrop.style.left = "3px"; // Micro-pixel alignment adjustment
+
+          // Slide Forms Container Right
+          formsSlider.style.transform = "translateX(-50%)";
+
+          // Expand Container Height to handle extra fields cleanly based on true content height
+          formWrapper.style.height = `${signupForm.scrollHeight}px`;
+
+          // Adjust Text Styling
+          tabLogin.classList.replace("text-neutral-800", "text-neutral-400");
+          tabSignup.classList.replace("text-neutral-400", "text-neutral-800");
+
+          // Morph Header text content smoothly
+          authTitle.innerText = "Create your Relay Profile";
+          authSubtitle.innerText = "Set up your system credentials in seconds";
+        }
+      }
+
+      // Recalculate heights if screen resizes to keep it pixel-perfect
+      window.addEventListener("resize", () => {
+        const currentMode = tabLogin.classList.contains("text-neutral-800")
+          ? "login"
+          : "signup";
+        formWrapper.style.height =
+          currentMode === "login"
+            ? `${loginForm.scrollHeight}px`
+            : `${signupForm.scrollHeight}px`;
+      });
+
+      // Handles processing state visual feedback
+      // Handles processing state visual feedback and passes data to Flask Blueprint
+      async function handleSubmit(e, systemMode) {
+        e.preventDefault();
+        const activeBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = activeBtn.innerHTML;
+
+        // Visual sync animation
+        activeBtn.disabled = true;
+        activeBtn.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin text-[11px] mr-1"></i> Syncing...`;
+
+        // Build payload dynamically depending on which tab is active
+        let payload = { action: systemMode };
+
+        if (systemMode === "login") {
+          payload.username = document.getElementById("login-username").value;
+          payload.password = document.getElementById("login-password").value;
+        } else {
+          payload.email = document.getElementById("signup-email").value;
+          payload.username = document.getElementById("signup-username").value;
+          payload.password = document.getElementById("signup-password").value;
+          payload.confirm_password = document.getElementById(
+            "signup-confirm-password",
+          ).value;
+        }
+
+        try {
+          // Route to your local running global Flask app instance
+          const response = await fetch("http://127.0.0.1:5000/auth", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include", // Crucial: Allows Flask to set your login session cookie locally
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Redirect to your main application dashboard upon identity verification
+            window.location.href = "{{ url_for('index') }}";
+          } else {
+            alert(data.message); // Custom system rejection alert handler
+            activeBtn.innerHTML = originalText;
+            activeBtn.disabled = false;
+          }
+        } catch (error) {
+          console.error("Auth Engine Fault:", error);
+          alert(
+            "An explicit connection timeout or server sequence fault occurred.",
+          );
+          activeBtn.innerHTML = originalText;
+          activeBtn.disabled = false;
+        }
+      }
+    </script>
+  </body>
+</html>
