@@ -1,7 +1,7 @@
 <!doctype html>
 <html
   lang="en"
-  class="h-full bg-neutral-950 text-neutral-200 antialiased selection:bg-sky-500 selection:text-neutral-950"
+  class="h-full bg-neutral-950 text-neutral-200 antialiased {{ settings.theme_selection }}"
 >
   <head>
     <meta charset="UTF-8" />
@@ -36,60 +36,59 @@
   <body
     class="bg-cover bg-center min-h-screen md:h-screen flex flex-col p-3 sm:p-5 md:p-8 pb-16 sm:pb-16 md:pb-14 max-w-7xl mx-auto w-full gap-4 sm:gap-6 overflow-y-auto md:overflow-hidden font-sans relative"
     style="background-image: url('{{ url_for('static', filename='images/' ~ settings.backdrop_filename) }}');"
->
+  >
     <header
       class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between w-full border-b border-neutral-900 pb-3.5 shrink-0"
     >
-      <!-- Left Side: Group Banner Status Card (Now smoothly scales text on mobile) -->
+      <!-- Left Side: Group Banner Status Card -->
       <div
         class="flex items-center gap-2.5 sm:gap-3 bg-neutral-950/40 backdrop-blur-md border border-neutral-800/50 p-2 sm:p-2.5 rounded-xl shadow-lg w-full lg:w-auto"
       >
         <a
-          class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/10 text-white text-sm sm:text-base shrink-0"
+          class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-tr {{ settings.theme_color_gradient }} rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg text-white text-sm sm:text-base shrink-0"
           href="{{ url_for('index') }}"
         >
-          <i class="fa-solid fa-rocket"></i>
+          <span>{{ settings.identity_icon }}</span>
         </a>
         <div class="min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <h1
               class="text-xs sm:text-sm md:text-base font-semibold tracking-tight text-white leading-none drop-shadow-md truncate"
             >
-              {{group.group_name}}
+              {{ settings.group_name }}
             </h1>
             <span
-              class="text-[8px] sm:text-[9px] font-mono bg-sky-500/20 text-sky-400 border border-sky-500/30 px-1.5 py-0.5 rounded backdrop-blur-sm"
+              class="text-[8px] sm:text-[9px] font-mono {{ settings.theme_badge_bg }} {{ settings.theme_badge_text }} px-1.5 py-0.5 rounded backdrop-blur-sm"
             >
-              Pipeline Active
+              {{ settings.security_engine }}
             </span>
           </div>
           <p
             class="text-[10px] sm:text-xs text-neutral-400 mt-1 leading-normal drop-shadow-sm"
           >
-            Dropping a file into an occupied slot overwrites the prior
-            deployment instantly.
+            Dropping a file into an occupied slot overwrites the prior deployment instantly.
           </p>
         </div>
       </div>
 
-      <!-- Right Side: Control Grid (Collapses into a neat 2-column layout on mobile, flows inline on desktop) -->
+      <!-- Right Side: Control Grid -->
       <div
         class="grid grid-cols-2 gap-2 w-full sm:flex sm:items-center sm:justify-end sm:gap-2.5 lg:w-auto"
       >
-        <!-- Meta Readouts & Sharing Controls (Spans full width of the mobile split grid) -->
+        <!-- Meta Readouts & Sharing Controls -->
         <div
           class="col-span-2 flex items-center justify-between sm:justify-start gap-3 bg-neutral-950/40 backdrop-blur-md border border-neutral-800/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs h-9"
         >
           <div class="flex items-center gap-1.5">
             <span
-              class="w-1.5 h-1.5 bg-sky-500 rounded-full animate-pulse"
+              class="w-1.5 h-1.5 {{ settings.theme_pulse_dot }} rounded-full animate-pulse"
             ></span>
             <span class="text-neutral-400">Lifespan:</span>
             <span
               id="globalLifesDisplay"
               class="font-mono font-semibold text-neutral-200"
             >
-              15m limit
+              {{ settings.lifespan_minutes }}m limit
             </span>
           </div>
           <div class="w-px h-3 bg-neutral-800"></div>
@@ -106,9 +105,9 @@
           </button>
         </div>
 
-        <!-- Action Button: Add Card -->
+        <!-- Action Button: Dynamic Add Card Button -->
         <button
-          class="h-9 text-[11px] sm:text-xs bg-sky-600/10 hover:bg-sky-600/20 text-sky-400 hover:text-sky-300 px-3 py-2 rounded-xl border border-sky-500/20 hover:border-sky-500/40 transition flex items-center justify-center gap-1.5 font-medium shadow-sm cursor-pointer"
+          class="h-9 text-[11px] sm:text-xs {{ settings.theme_interactive_bg }} {{ settings.theme_badge_text }} {{ settings.theme_interactive_hover_text }} px-3 py-2 rounded-xl border {{ settings.theme_accent_border }} {{ settings.theme_interactive_hover_border }} transition flex items-center justify-center gap-1.5 font-medium shadow-sm cursor-pointer"
           onclick="handleAddCard()"
         >
           <i class="fa-solid fa-plus text-[9px]"></i>
@@ -129,11 +128,13 @@
     <main
       class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 min-h-0 md:overflow-hidden"
     >
+      <!-- Main Workstation Layout Slots Container -->
       <div
         class="relative flex flex-wrap gap-4 items-start justify-start p-4 sm:p-6 md:col-span-2 rounded-2xl border border-neutral-900/60 bg-black/40 backdrop-blur-sm min-h-[360px] sm:min-h-[420px] md:min-h-0 md:overflow-y-auto"
       >
+        <!-- Card Slot #1 -->
         <div
-          class="group relative z-10 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-square border rounded-2xl border-neutral-800/90 bg-neutral-950/20 backdrop-blur-md overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-sky-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]"
+          class="group relative z-10 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-square border rounded-2xl border-neutral-800/90 bg-neutral-950/20 backdrop-blur-md overflow-hidden flex flex-col justify-between transition-all duration-300 {{ settings.theme_hover_border }} {{ settings.theme_glow_shadow }}"
         >
           <div class="absolute inset-0 z-0 select-none pointer-events-none">
             <img
@@ -152,21 +153,21 @@
             <div class="flex justify-between items-center gap-3 w-full">
               <div class="flex items-center gap-2 min-w-0">
                 <div
-                  class="w-9 h-9 rounded-lg bg-neutral-950/60 backdrop-blur-md border border-white/10 text-sky-400 flex items-center justify-center text-sm shrink-0 shadow-inner"
+                  class="w-9 h-9 rounded-lg bg-neutral-950/60 backdrop-blur-md border border-white/10 {{ settings.theme_badge_text }} flex items-center justify-center text-sm shrink-0 shadow-inner"
                 >
                   <i class="fa-solid fa-box-archive"></i>
                 </div>
                 <span
-                  class="inline-block text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-500/20 backdrop-blur-md px-1.5 py-0.5 rounded-md border border-sky-500/20 whitespace-nowrap"
+                  class="inline-block text-[9px] sm:text-[10px] font-bold uppercase tracking-wider {{ settings.theme_badge_text }} {{ settings.theme_badge_bg }} px-1.5 py-0.5 rounded-md whitespace-nowrap"
                 >
                   Slot #1
                 </span>
               </div>
 
               <span
-                class="text-[10px] font-mono font-medium text-sky-400 bg-neutral-950/90 backdrop-blur-md px-1.5 py-1 rounded-md border border-white/10 shrink-0 shadow-sm"
+                class="text-[10px] font-mono font-medium {{ settings.theme_badge_text }} bg-neutral-950/90 backdrop-blur-md px-1.5 py-1 rounded-md border border-white/10 shrink-0 shadow-sm"
               >
-                45m left
+                {{ settings.lifespan_minutes }}m left
               </span>
             </div>
 
@@ -182,7 +183,7 @@
               >
                 by
                 <span
-                  class="text-neutral-200 font-medium hover:text-sky-400 transition-colors duration-150 cursor-pointer"
+                  class="text-neutral-200 font-medium {{ settings.theme_interactive_hover_text }} transition-colors duration-150 cursor-pointer"
                 >
                   PixelPirate
                 </span>
@@ -192,7 +193,7 @@
             <div class="flex gap-2 w-full mt-auto">
               <a
                 href="#"
-                class="flex-1 flex items-center justify-center gap-1.5 bg-sky-500 hover:bg-sky-400 text-neutral-950 text-xs font-bold py-2 rounded-xl shadow-lg shadow-sky-500/10 transition duration-200"
+                class="flex-1 flex items-center justify-center gap-1.5 {{ settings.theme_btn_bg }} text-xs font-bold py-2 rounded-xl shadow-lg transition duration-200"
               >
                 <i class="fa-solid fa-download text-[11px]"></i>
                 <span>Download</span>
@@ -215,90 +216,19 @@
           </div>
         </div>
 
-        <div
-          class="group relative z-10 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-square border rounded-2xl border-neutral-800/90 bg-neutral-950/20 backdrop-blur-md overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-sky-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]"
-        >
-          <div
-            class="relative z-10 p-4 flex flex-col justify-between h-full flex-1 bg-amber-700"
-          >
-            <div class="flex justify-between items-center gap-3 w-full">
-              <div class="flex items-center gap-2 min-w-0">
-                <div
-                  class="w-9 h-9 rounded-lg bg-neutral-950/60 backdrop-blur-md border border-white/10 text-sky-400 flex items-center justify-center text-sm shrink-0 shadow-inner"
-                >
-                  <i class="fa-solid fa-box-archive"></i>
-                </div>
-                <span
-                  class="inline-block text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-500/20 backdrop-blur-md px-1.5 py-0.5 rounded-md border border-sky-500/20 whitespace-nowrap"
-                >
-                  Slot #2
-                </span>
-              </div>
-
-              <span
-                class="text-[10px] font-mono font-medium text-sky-400 bg-neutral-950/90 backdrop-blur-md px-1.5 py-1 rounded-md border border-white/10 shrink-0 shadow-sm"
-              >
-                45m left
-              </span>
-            </div>
-
-            <div class="flex-1 flex flex-col justify-center my-4 min-w-0">
-              <h3
-                class="text-sm font-semibold text-neutral-100 truncate drop-shadow-md text-center"
-                title="UI_Design_Final.zip"
-              >
-                UI_Design_Final.zip
-              </h3>
-              <p
-                class="text-[11px] text-neutral-400 mt-1 truncate drop-shadow-sm text-center"
-              >
-                by
-                <span
-                  class="text-neutral-200 font-medium hover:text-sky-400 transition-colors duration-150 cursor-pointer"
-                >
-                  PixelPirate
-                </span>
-              </p>
-            </div>
-
-            <div class="flex gap-2 w-full mt-auto">
-              <a
-                href="#"
-                class="flex-1 flex items-center justify-center gap-1.5 bg-sky-500 hover:bg-sky-400 text-neutral-950 text-xs font-bold py-2 rounded-xl shadow-lg shadow-sky-500/10 transition duration-200"
-              >
-                <i class="fa-solid fa-download text-[11px]"></i>
-                <span>Download</span>
-              </a>
-
-              <button
-                class="w-8 h-8 flex items-center justify-center bg-neutral-950/80 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-neutral-400 rounded-xl text-xs border border-white/10 backdrop-blur-md transition duration-200 shrink-0"
-                title="Delete Asset"
-              >
-                <i class="fa-regular fa-trash-can"></i>
-              </button>
-
-              <button
-                class="w-8 h-8 flex items-center justify-center bg-neutral-950/80 hover:bg-neutral-800 text-neutral-300 rounded-xl text-xs border border-white/10 backdrop-blur-md transition duration-200 shrink-0"
-                title="Settings"
-              >
-                <i class="fa-solid fa-gear"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
+        <!-- Dynamic Deploy Empty Path Allocation Slot Trigger -->
         <label
           for="slot2FileInput"
-          class="group relative z-10 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-square border-2 border-dashed rounded-2xl border-neutral-800 bg-neutral-950/10 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all duration-300 hover:border-sky-500/40 hover:bg-neutral-900/20"
+          class="group relative z-10 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-square border-2 border-dashed rounded-2xl border-neutral-800 bg-neutral-950/10 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all duration-300 {{ settings.theme_interactive_hover_border }} hover:bg-neutral-900/20"
         >
           <input type="file" id="slot2FileInput" class="hidden" />
           <div
-            class="w-10 h-10 rounded-xl bg-neutral-950 border border-neutral-800 text-neutral-500 group-hover:text-sky-400 group-hover:border-sky-500/30 flex items-center justify-center transition-all duration-200 shadow-inner mb-3"
+            class="w-10 h-10 rounded-xl bg-neutral-950 border border-neutral-800 text-neutral-500 {{ settings.theme_interactive_hover_text }} group-hover:border-sky-500/20 flex items-center justify-center transition-all duration-200 shadow-inner mb-3"
           >
             <i class="fa-solid fa-plus text-sm"></i>
           </div>
           <span
-            class="inline-block text-[9px] font-bold uppercase tracking-wider text-neutral-500 group-hover:text-sky-400 transition-colors mb-1"
+            class="inline-block text-[9px] font-bold uppercase tracking-wider text-neutral-500 {{ settings.theme_interactive_hover_text }} transition-colors mb-1"
           >
             Slot #
           </span>
@@ -315,6 +245,7 @@
         </label>
       </div>
 
+      <!-- Shoutbox Communication Panel -->
       <div
         class="md:col-span-1 flex flex-col h-[400px] md:h-full bg-neutral-950/40 backdrop-blur-md border border-neutral-800/90 rounded-xl p-4 overflow-hidden shadow-2xl shadow-black/40"
       >
@@ -326,7 +257,7 @@
               class="text-xs font-semibold uppercase text-neutral-400 tracking-wider flex items-center gap-1.5"
             >
               <i
-                class="fa-regular fa-comment-dots text-[13px] text-sky-500"
+                class="fa-regular fa-comment-dots text-[13px] {{ settings.theme_badge_text }}"
               ></i>
               Squad Shoutbox
             </h3>
@@ -345,7 +276,7 @@
               class="bg-neutral-950/60 p-2.5 rounded-xl border border-neutral-800/50 leading-relaxed"
             >
               <div class="flex justify-between items-baseline mb-1">
-                <strong class="text-sky-400 font-medium">Alex</strong>
+                <strong class="{{ settings.theme_badge_text }} font-medium">Alex</strong>
                 <span class="text-[9px] text-neutral-500 font-mono"
                   >11:42 AM</span
                 >
@@ -354,36 +285,22 @@
                 Direct drop a folder onto Slot 3 if you need to test it!
               </p>
             </div>
-
-            <div
-              class="bg-neutral-950/60 p-2.5 rounded-xl border border-neutral-800/50 leading-relaxed"
-            >
-              <div class="flex justify-between items-baseline mb-1">
-                <strong class="text-purple-400 font-medium">PixelPirate</strong>
-                <span class="text-[9px] text-neutral-500 font-mono"
-                  >11:45 AM</span
-                >
-              </div>
-              <p class="text-neutral-300">
-                Just pushed the updated asset zip file to Slot 1. Let me know if
-                the components map correctly.
-              </p>
-            </div>
           </div>
         </div>
 
         <div
           class="mt-auto pt-3 border-t border-neutral-800/80 space-y-3 shrink-0 bg-neutral-950/80 -mx-4 -mb-4 p-4 rounded-b-xl border-l border-r border-b border-neutral-800/40"
         >
+          <!-- Dynamic Theme Auto-Allocate Dropzone Trigger -->
           <label
             for="globalDropZone"
-            class="relative bg-neutral-950/50 backdrop-blur-md border border-dashed border-neutral-800 hover:border-sky-500/50 hover:bg-neutral-900/40 p-2.5 rounded-xl flex items-center justify-between group cursor-pointer transition-all duration-200 shadow-lg"
+            class="relative bg-neutral-950/50 backdrop-blur-md border border-dashed border-neutral-800 {{ settings.theme_interactive_hover_border }} hover:bg-neutral-900/40 p-2.5 rounded-xl flex items-center justify-between group cursor-pointer transition-all duration-200 shadow-lg"
           >
             <input type="file" id="globalDropZone" class="hidden" />
 
             <div class="flex items-center gap-2.5 min-w-0">
               <div
-                class="w-7 h-7 rounded-lg bg-neutral-950 border border-neutral-800 text-neutral-400 group-hover:text-sky-400 group-hover:border-sky-500/20 flex items-center justify-center transition-all duration-200 shrink-0 shadow-inner"
+                class="w-7 h-7 rounded-lg bg-neutral-950 border border-neutral-800 text-neutral-400 {{ settings.theme_interactive_hover_text }} group-hover:border-sky-500/10 flex items-center justify-center transition-all duration-200 shrink-0 shadow-inner"
               >
                 <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
               </div>
@@ -403,7 +320,7 @@
             </div>
 
             <i
-              class="fa-solid fa-plus text-[11px] text-neutral-500 group-hover:text-sky-400 transition-colors shrink-0 ml-2"
+              class="fa-solid fa-plus text-[11px] text-neutral-500 {{ settings.theme_interactive_hover_text }} transition-colors shrink-0 ml-2"
             ></i>
           </label>
 
@@ -412,7 +329,7 @@
               type="text"
               id="shoutboxInput"
               placeholder="Message workspace..."
-              class="flex-1 bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 transition placeholder-neutral-600 font-sans"
+              class="flex-1 bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none {{ settings.theme_focus_ring }} transition placeholder-neutral-600 font-sans"
               onkeydown="if (event.key === 'Enter') sendShoutboxMessage();"
             />
             <button
@@ -426,6 +343,7 @@
       </div>
     </main>
 
+    <!-- Global Configuration Admin Modal Overlay Layout -->
     <div
       id="adminModal"
       class="hidden fixed inset-0 bg-neutral-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -441,7 +359,7 @@
           <h3
             class="text-neutral-200 font-semibold text-sm flex items-center gap-1.5"
           >
-            <i class="fa-solid fa-gear text-sky-400 text-xs"></i>
+            <i class="fa-solid fa-gear {{ settings.theme_badge_text }} text-xs"></i>
             System Configuration
           </h3>
           <button
@@ -461,13 +379,13 @@
             <input
               type="number"
               id="lifespanInput"
-              value="15"
-              class="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 transition"
+              value="{{ settings.lifespan_minutes }}"
+              class="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-white text-sm focus:outline-none {{ settings.theme_focus_ring }} transition"
             />
           </div>
         </div>
         <button
-          class="w-full bg-sky-500 hover:bg-sky-400 text-neutral-950 font-semibold py-2.5 rounded-lg text-xs uppercase tracking-wider transition mt-5 shadow-md"
+          class="w-full {{ settings.theme_btn_bg }} font-semibold py-2.5 rounded-lg text-xs uppercase tracking-wider transition mt-5 shadow-md"
           onclick="saveSystemConfig()"
         >
           Save Configuration
@@ -503,6 +421,6 @@
       </a>
     </div>
 
-    <script src="script/index.js"></script>
+    <script src="{{ url_for('static', filename='script/index.js') }}"></script>
   </body>
 </html>

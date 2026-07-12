@@ -180,23 +180,39 @@ def group(group_id):
         'lifespan_minutes': '45',
         'description': '',
         'identity_icon': '🚀',
-        'theme_color_key': 'from-sky-500 to-indigo-600',
-        'theme_hover_border': 'hover:border-blue-500/40',
+        'theme_color_key': 'sky', 
+        
+        # Comprehensive theme mapping injected into templates
+        'theme_hover_border': 'hover:border-sky-500/40',
         'theme_glow_shadow': 'hover:shadow-[0_0_25px_rgba(59,130,246,0.12)]',
-        'theme_badge_text': 'text-blue-400',
-        'theme_badge_bg': 'bg-blue-500/20 border-blue-500/20',
-        'theme_btn_bg': 'bg-blue-500 hover:bg-blue-400 text-neutral-950',
-        'backdrop_filename': 'default_backdrop.jpg' # Ensure a default backdrop exists
+        'theme_badge_text': 'text-sky-400',
+        'theme_badge_bg': 'bg-sky-500/20 border-sky-500/20',
+        'theme_btn_bg': 'bg-sky-500 hover:bg-sky-400 text-neutral-950',
+        
+        # New structural additions to isolate custom styles for dynamic UI elements
+        'theme_accent_text': 'text-sky-400',
+        'theme_accent_border': 'border-sky-500/20',
+        'theme_interactive_bg': 'bg-sky-600/10 hover:bg-sky-600/20',
+        'theme_interactive_hover_border': 'hover:border-sky-500/40 group-hover:border-sky-500/40',
+        'theme_interactive_hover_text': 'hover:text-sky-300 group-hover:text-sky-400',
+        'theme_focus_ring': 'focus:border-sky-500 focus:ring-sky-500/10 focus:ring-2',
+        'theme_selection': 'selection:bg-sky-500 selection:text-neutral-950',
+        
+        'backdrop_filename': 'default_backdrop.jpg' 
     }
 
     for key, default_value in defaults.items():
         if key not in settings or not settings[key]:
             settings[key] = default_value
 
-    # If the user selected a color key, map it to a clean tailwind gradient string
+    # Process gradients natively
     if 'theme_color_key' in settings and settings['theme_color_key'] in THEME_MAP:
         color = settings['theme_color_key']
-        settings['theme_color_key'] = f"from-{color}-500 to-{color}-600"
+        settings['theme_color_gradient'] = f"from-{color}-500 to-{color}-600"
+        settings['theme_pulse_dot'] = f"bg-{color}-500"
+    else:
+        settings['theme_color_gradient'] = "from-sky-500 to-indigo-600"
+        settings['theme_pulse_dot'] = "bg-sky-500"
 
     # 6. Render the workspace template passing down the compiled settings
     return render_template("group.html", settings=settings, group=group)
