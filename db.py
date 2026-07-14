@@ -21,6 +21,22 @@ class User(db.Model):
     drops = db.relationship('TemporaryDrop', backref='user', cascade='all, delete-orphan', lazy=True)
     messages = db.relationship('ShoutboxMessage', backref='user', cascade='all, delete-orphan', lazy=True)
 
+class UserConfig(db.Model):
+    __tablename__ = 'user_configs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    setting_key = db.Column(db.String(64), nullable=False)
+    setting_value = db.Column(db.Text, nullable=True)
+    
+    # Optional performance optimization index to speed up dictionary building
+    __table_args__ = (
+        db.Index('idx_user_setting', 'user_id', 'setting_key', unique=True),
+    )
+
+    def __repr__(self):
+        return f"<UserConfig user_id={self.user_id} key='{self.setting_key}'>"
+
 
 # ============================================================
 # 2. MASTER GROUPS DIRECTORY

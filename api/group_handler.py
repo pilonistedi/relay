@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session, redirect, url_for, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 import random
-from db import db, User, Group, GroupConfig
+from db import db, User, Group, GroupConfig, TemporaryDrop
 import string
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -214,5 +214,15 @@ def group(group_id):
         settings['theme_color_gradient'] = "from-sky-500 to-indigo-600"
         settings['theme_pulse_dot'] = "bg-sky-500"
 
+    current_user_id = session.get('user_id')
+
+    is_creator = False
+    if current_user_id and hasattr(group, 'creator_id'):
+        is_creator = (group.creator_id == current_user_id)
+    elif current_user_id and hasattr(group, 'user_id'):
+        is_creator = (group.user_id == current_user_id)
+
+    drops = TemporaryDrop.query.filter_by(group_id=group_id).order_by(TemporaryDrop.created_at.desc()).all()
+
     # 6. Render the workspace template passing down the compiled settings
-    return render_template("group.html", settings=settings, group=group)
+    return render_template("group.html", settings=settings, group=group, drops=drops, is_creator=is_creator)

@@ -115,6 +115,8 @@
         </button>
 
         <!-- Room System Settings -->
+        {% if is_creator %}
+        <!-- Room System Settings (Only visible to the creator) -->
         <button
           class="h-9 text-[11px] sm:text-xs bg-neutral-950 hover:bg-neutral-900 text-neutral-300 px-3 py-2 rounded-xl border border-neutral-800 hover:border-neutral-700 transition flex items-center justify-center gap-1.5 font-medium shadow-sm cursor-pointer"
           onclick="toggleModal('adminModal')"
@@ -122,6 +124,7 @@
           <i class="fa-solid fa-sliders text-neutral-400 text-[10px]"></i>
           <span>Settings</span>
         </button>
+        {% endif %}
       </div>
     </header>
 
@@ -133,15 +136,19 @@
         class="relative flex flex-wrap gap-4 items-start justify-start p-4 sm:p-6 md:col-span-2 rounded-2xl border border-neutral-900/60 bg-black/40 backdrop-blur-sm min-h-[360px] sm:min-h-[420px] md:min-h-0 md:overflow-y-auto"
       >
         <!-- Card Slot #1 -->
+        {% for drop in drops %}
         <div
           class="group relative z-10 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-square border rounded-2xl border-neutral-800/90 bg-neutral-950/20 backdrop-blur-md overflow-hidden flex flex-col justify-between transition-all duration-300 {{ settings.theme_hover_border }} {{ settings.theme_glow_shadow }}"
         >
+          <!-- Background Image Layout Restored -->
           <div class="absolute inset-0 z-0 select-none pointer-events-none">
             <img
               src="/static/images/boys.avif"
               alt="background"
               class="w-full h-full object-cover object-center filter brightness-[0.22] contrast-[1.12] group-hover:scale-105 transition-transform duration-500 ease-out"
             />
+            <!-- Subtle color overlay tint using the database card_color for personalization -->
+            <div class="absolute inset-0 bg-gradient-to-tr {{ drop.card_color }} opacity-[0.12]"></div>
             <div
               class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-black/30"
             ></div>
@@ -155,28 +162,31 @@
                 <div
                   class="w-9 h-9 rounded-lg bg-neutral-950/60 backdrop-blur-md border border-white/10 {{ settings.theme_badge_text }} flex items-center justify-center text-sm shrink-0 shadow-inner"
                 >
-                  <i class="fa-solid fa-box-archive"></i>
+                  <!-- Displays the unique user emoji assigned to this drop card -->
+                  <span class="text-base">{{ drop.user_emoji }}</span>
                 </div>
                 <span
                   class="inline-block text-[9px] sm:text-[10px] font-bold uppercase tracking-wider {{ settings.theme_badge_text }} {{ settings.theme_badge_bg }} px-1.5 py-0.5 rounded-md whitespace-nowrap"
                 >
-                  Slot #1
+                  Active Slot
                 </span>
               </div>
 
               <span
                 class="text-[10px] font-mono font-medium {{ settings.theme_badge_text }} bg-neutral-950/90 backdrop-blur-md px-1.5 py-1 rounded-md border border-white/10 shrink-0 shadow-sm"
               >
-                {{ settings.lifespan_minutes }}m left
+                <!-- Uses the context helper to display dynamic minutes remaining -->
+                {{ lifespan_remaining_mins(drop.expires_at) }}m left
               </span>
             </div>
 
             <div class="flex-1 flex flex-col justify-center my-4 min-w-0">
               <h3
                 class="text-sm font-semibold text-neutral-100 truncate drop-shadow-md text-center"
-                title="UI_Design_Final.zip"
+                title="{{ drop.original_name }}"
               >
-                UI_Design_Final.zip
+                <!-- Displays the uploaded file's original name -->
+                {{ drop.original_name }}
               </h3>
               <p
                 class="text-[11px] text-neutral-400 mt-1 truncate drop-shadow-sm text-center"
@@ -185,36 +195,49 @@
                 <span
                   class="text-neutral-200 font-medium {{ settings.theme_interactive_hover_text }} transition-colors duration-150 cursor-pointer"
                 >
-                  PixelPirate
+                  <!-- Displays the custom display name of the uploader -->
+                  {{ drop.user.display_username if drop.user else "Anonymous" }}
                 </span>
               </p>
             </div>
 
             <div class="flex gap-2 w-full mt-auto">
+              <!-- Points securely to the stored file layout path inside static/uploads/ -->
               <a
-                href="#"
+                href="{{ url_for('static', filename='uploads/' ~ drop.stored_name) }}"
+                download="{{ drop.original_name }}"
                 class="flex-1 flex items-center justify-center gap-1.5 {{ settings.theme_btn_bg }} text-xs font-bold py-2 rounded-xl shadow-lg transition duration-200"
               >
                 <i class="fa-solid fa-download text-[11px]"></i>
                 <span>Download</span>
               </a>
 
+              <!-- Trash Delete Action -->
               <button
+                onclick="deleteDrop({{ drop.id }})"
                 class="w-8 h-8 flex items-center justify-center bg-neutral-950/80 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-neutral-400 rounded-xl text-xs border border-white/10 backdrop-blur-md transition duration-200 shrink-0"
                 title="Delete Asset"
               >
                 <i class="fa-regular fa-trash-can"></i>
               </button>
 
+              <!-- Gear/Settings Action restored here! -->
               <button
+                onclick="openCardSettings({{ drop.id }})"
                 class="w-8 h-8 flex items-center justify-center bg-neutral-950/80 hover:bg-neutral-800 text-neutral-300 rounded-xl text-xs border border-white/10 backdrop-blur-md transition duration-200 shrink-0"
-                title="Settings"
+                title="Card Settings"
               >
                 <i class="fa-solid fa-gear"></i>
               </button>
             </div>
           </div>
         </div>
+        {% else %}
+          <!-- Optional empty state fallback if no files have been dropped yet -->
+          <div class="w-full text-center py-8 text-xs text-neutral-500 italic col-span-full">
+            No files deployed in this workspace yet.
+          </div>
+        {% endfor %}
 
         <!-- Dynamic Deploy Empty Path Allocation Slot Trigger -->
         <label

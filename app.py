@@ -3,6 +3,8 @@ from flask_cors import CORS
 from db import db, Group, GroupConfig
 from api.auth import auth_bp
 from api.group_handler import group_handler_bp
+from api.upload import upload_bp
+import os
 
 def get_group_configs(target_group_id):
 
@@ -26,6 +28,7 @@ def get_group_configs(target_group_id):
         'theme_color_key': raw_configs.get('theme_color_key', 'blue')
     }
 
+
 def create_app():
     app = Flask(__name__)
     
@@ -42,9 +45,29 @@ def create_app():
     # Bind database to the application context
     db.init_app(app)
 
+    UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+    # Dynamic check: Ensure the directories exist on your machine, create them if missing
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
     # --- REGISTER MODULE BLUEPRINTS ---
     app.register_blueprint(auth_bp)
     app.register_blueprint(group_handler_bp)
+    app.register_blueprint(upload_bp)
+
+    @app.context_processor
+    def utility_processor():
+        def lifespan_remaining_mins(expires_at):
+            if not expires_at:
+                return 0
+            from datetime import datetime
+            # Calculate difference between expiration time and current UTC time
+            diff = expires_at - datetime.utcnow()
+            return max(0, int(diff.total_seconds() / 60))
+        
+        return dict(lifespan_remaining_mins=lifespan_remaining_mins)
 
     # --- DEFINE GLOBAL ROUTES INSIDE THE FACTORY ---
     @app.route('/')
