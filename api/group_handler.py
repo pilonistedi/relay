@@ -225,4 +225,4 @@ def group(group_id):
     drops = TemporaryDrop.query.filter_by(group_id=group_id).order_by(TemporaryDrop.created_at.desc()).all()
 
     # 6. Render the workspace template passing down the compiled settings
-    return render_template("group.html", settings=settings, group=group, drops=drops, is_creator=is_creator)
+    return render_template("group.html", settings=settings, group=group, drops=drops, is_creator=is_creator, group_id=group_id)

@@ -244,3 +244,107 @@ function showToast(message, type = "info") {
     toast.classList.add("opacity-0", "translate-y-[-20px]");
   }, 4000);
 }
+
+// Function to fetch and render messages
+async function fetchShoutboxMessages() {
+  try {
+    const response = await fetch(`/chat/${CURRENT_GROUP_ID}/messages`);
+    if (!response.ok) return;
+    
+    const data = await response.json();
+    const shoutboxContainer = document.getElementById('shoutboxMessages');
+    
+    // Clear previous static/dynamic messages
+    shoutboxContainer.innerHTML = '';
+    
+    if (data.messages.length === 0) {
+      shoutboxContainer.innerHTML = `
+        <div class="text-center py-4 text-neutral-600 italic text-[11px]">
+          No messages yet. Start the conversation!
+        </div>
+      `;
+      return;
+    }
+
+    data.messages.forEach(msg => {
+      const msgEl = document.createElement('div');
+      msgEl.className = 'bg-neutral-950/60 p-2.5 rounded-xl border border-neutral-800/50 leading-relaxed transition-all';
+      msgEl.innerHTML = `
+        <div class="flex justify-between items-baseline mb-1">
+          <span class="font-medium text-white flex items-center gap-1.5">
+            <span class="text-xs">${msg.user_emoji || '👾'}</span>
+            <strong class="text-sky-400">${msg.username}</strong>
+          </span>
+          <span class="text-[9px] text-neutral-500 font-mono">${msg.sent_at}</span>
+        </div>
+        <p class="text-neutral-300 break-words">${escapeHTML(msg.message_text)}</p>
+      `;
+      shoutboxContainer.appendChild(msgEl);
+    });
+
+    // Auto-scroll to the bottom of the shoutbox on update
+    shoutboxContainer.scrollTop = shoutboxContainer.scrollHeight;
+  } catch (error) {
+    console.error('Error loading shoutbox logs:', error);
+  }
+}
+
+// Function to safely send a shoutbox message
+async function sendShoutboxMessage() {
+  const inputEl = document.getElementById('shoutboxInput');
+  const messageText = inputEl.value.trim();
+  if (!messageText) return;
+
+  // Clear input instantly for snappy UX feel
+  inputEl.value = '';
+
+  try {
+    const response = await fetch(`/chat/${CURRENT_GROUP_ID}/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message_text: messageText })
+    });
+
+    if (response.ok) {
+      // Reload UI on immediate success
+      fetchShoutboxMessages();
+    } else {
+      console.error('Failed to post message to chat log.');
+    }
+  } catch (error) {
+    console.error('Error posting message:', error);
+  }
+}
+
+// Simple HTML escaper helper to secure custom inputs from XSS
+function escapeHTML(str) {
+  return str.replace(/[&<>'"]/g, 
+    tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag] || tag)
+  );
+}
+
+// Set up the automatic live poller
+document.addEventListener('DOMContentLoaded', () => {
+  fetchShoutboxMessages();
+  // Poll database for new squad chat logs every 4 seconds
+  setInterval(fetchShoutboxMessages, 4000);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const shoutboxContainer = document.getElementById('shoutboxMessages');
+  if (shoutboxContainer) {
+    // Scroll directly to the newest message on initial load
+    shoutboxContainer.scrollTop = shoutboxContainer.scrollHeight;
+  }
+  
+  // Keep live fetching active for updates every 4 seconds
+  setInterval(fetchShoutboxMessages, 4000);
+});

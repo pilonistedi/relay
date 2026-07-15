@@ -4,6 +4,7 @@ from db import db, Group, GroupConfig
 from api.auth import auth_bp
 from api.group_handler import group_handler_bp
 from api.upload import upload_bp
+from api.chat import chat_bp
 import os
 
 def get_group_configs(target_group_id):
@@ -56,6 +57,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(group_handler_bp)
     app.register_blueprint(upload_bp)
+    app.register_blueprint(chat_bp)
 
     @app.context_processor
     def utility_processor():
