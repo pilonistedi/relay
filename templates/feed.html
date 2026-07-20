@@ -17,43 +17,50 @@
   </head>
   <body
     id="canvasBody"
-    class="min-h-screen md:h-screen flex flex-col p-4 bg-gradient-to-br from-neutral-50 via-neutral-100/60 to-neutral-50 max-w-5xl mx-auto w-full gap-4 md:overflow-hidden font-sans relative transition-all duration-300 pb-16 md:pb-4"
+    class="min-h-screen md:h-screen flex flex-col p-4 bg-gradient-to-br from-neutral-50 via-neutral-100/60 to-neutral-50 max-w-5xl mx-auto w-full gap-4 md:overflow-hidden font-sans transition-all duration-300"
   >
     <!-- Top Micro Header -->
     <header
-      class="flex items-center justify-between w-full border-b border-neutral-200/60 pb-2 shrink-0"
+      class="flex items-center justify-between w-full border-b border-neutral-200/60 pb-2 shrink-0 gap-2"
     >
       <div class="flex items-center gap-2">
         <div
-          class="w-7 h-7 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-lg flex items-center justify-center text-white text-xs shadow-sm"
+          class="w-7 h-7 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-lg flex items-center justify-center text-white text-xs shadow-sm shrink-0"
         >
           <i class="fa-solid fa-hubspot"></i>
         </div>
-        <h1 class="text-xs font-semibold tracking-tight text-neutral-900">
+        <h1 class="text-xs font-semibold tracking-tight text-neutral-900 truncate">
           Relay Hub
         </h1>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
         {% if session.get('user_id') %}
+          <!-- User Status: Logged In (Show Avatar & Email, then Sign Out) -->
+          <span class="text-xs font-medium text-neutral-600 hidden sm:inline truncate max-w-[150px]">
+            {{ email }}
+          </span>
+
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-100 to-neutral-200 border border-neutral-200/80 flex items-center justify-center text-xs font-semibold text-neutral-600 uppercase transition-colors hover:bg-neutral-200/50 shrink-0">
+            {{ session.get('display_username', email)[:1] }}
+          </div>
+
           <a
             href="{{ url_for('auth_bp.logout') }}"
-            class="text-[11px] font-medium text-neutral-500 hover:text-neutral-900 px-2.5 py-1 rounded-md hover:bg-neutral-100/70 border border-transparent hover:border-neutral-200/40 transition-all duration-200"
+            class="flex gap-2 sm:gap-4 justify-center items-center text-[11px] font-medium text-neutral-500 hover:text-neutral-900 px-2 py-1 sm:px-2.5 rounded-md hover:bg-neutral-100/70 border border-transparent hover:border-neutral-200/40 transition-all duration-200 shrink-0"
           >
-            Sign Out
+            <span class="hidden xs:inline">Sign Out</span>
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
           </a>
+
         {% else %}
+          <!-- User Status: Logged Out (Show Sign In) -->
           <a
             href="{{ url_for('auth_bp.auth') }}"
-            class="text-[11px] font-medium text-neutral-500 hover:text-neutral-900 px-2.5 py-1 rounded-md hover:bg-neutral-100/70 border border-transparent hover:border-neutral-200/40 transition-all duration-200"
+            class="text-[11px] font-medium text-neutral-500 hover:text-neutral-900 px-2.5 py-1 rounded-md hover:bg-neutral-100/70 border border-transparent hover:border-neutral-200/40 transition-all duration-200 shrink-0"
           >
             Sign In
           </a>
-        {% endif %}
-        {% if session.get('user_id') %}
-          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-neutral-100 to-neutral-200 border border-neutral-200/80 flex items-center justify-center text-[10px] font-semibold text-neutral-600 uppercase hover:bg-neutral-200/50 transition-colors">
-            {{ session.get('display_username', 'U')[:2] }}
-          </div>
         {% endif %}
       </div>
     </header>
@@ -64,7 +71,7 @@
     >
       <!-- ENGINE NEXUS: Alternates between Search Results & Group Creation (7 Cols) -->
       <section
-        class="md:col-span-7 flex flex-col bg-white border border-neutral-200/90 rounded-xl p-4 md:overflow-hidden shadow-sm"
+        class="md:col-span-7 flex flex-col bg-white border border-neutral-200/90 rounded-xl p-4 md:overflow-hidden shadow-sm shrink-0 md:shrink"
       >
         <!-- Toggle Tabs for the Nexus Panel -->
         <div
@@ -99,35 +106,60 @@
               class="w-full bg-neutral-50 border border-neutral-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-neutral-800 focus:outline-none focus:border-sky-500 transition placeholder-neutral-400"
             />
           </div>
-          <!-- Real-time scrollable matrix output -->
+          <!-- Static cards moved here -->
           <div
-            class="flex-1 md:overflow-y-auto space-y-2 pr-0.5 max-h-[300px] md:max-h-none"
+            class="flex-1 md:overflow-y-auto space-y-2 pr-0.5"
           >
-            {% for group in groups %}
-              <a href="{{ url_for('group_handler_bp.group', group_id=group.id) }}">
-                <div
-                  class="group border border-neutral-100 bg-neutral-50/50 hover:bg-white hover:border-sky-500/30 p-2.5 rounded-lg transition-all cursor-pointer flex justify-between items-center"
+            <!-- Suggestion Element Card: Urban Runners Club -->
+            <a
+              class="block p-2 rounded-lg bg-white border border-neutral-200/60 shadow-sm hover:border-sky-500/30 transition text-xs"
+              href="#"
+            >
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-neutral-800 text-[11px] truncate"
+                  >Urban Runners Club</span
                 >
-                  <div class="min-w-0">
-                    <h4 class="text-xs font-semibold text-neutral-900 truncate">
-                      {{ group.group_name }}
-                    </h4>
-                    <p class="text-[11px] text-neutral-500 truncate mt-0.5">
-                      Exploring minimal interface layout parameters.
-                    </p>
-                  </div>
-                  <span
-                    class="text-[9px] font-mono bg-white text-neutral-500 px-1.5 py-0.5 rounded border border-neutral-200/60 shrink-0 ml-2"
-                    >Open</span
-                  >
-                </div>
-              </a>
-            {% endfor %}
+                <span
+                  class="text-[9px] text-emerald-600 font-mono bg-emerald-50 px-1 rounded border border-emerald-100 shrink-0 ml-2"
+                  >Visited</span
+                >
+              </div>
+              <div
+                class="mt-1.5 flex items-center justify-between text-[10px] text-neutral-400 pt-1.5 border-t border-neutral-100"
+              >
+                <span class="font-mono flex items-center gap-1">
+                  <i class="fa-solid fa-user-group text-[9px]"></i> 4 peers from
+                  past rooms
+                </span>
+              </div>
+            </a>
+
+            <!-- Suggestion Element Card: Film Camera Guild -->
+            <div
+              class="p-2 rounded-lg bg-white border border-neutral-200/60 shadow-sm hover:border-sky-500/30 transition text-xs"
+            >
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-neutral-800 text-[11px] truncate"
+                  >Film Camera Guild</span
+                >
+                <span
+                  class="text-[9px] text-sky-600 font-mono bg-sky-50 px-1 rounded border border-sky-100 shrink-0 ml-2"
+                  >Member</span
+                >
+              </div>
+              <div
+                class="mt-1.5 flex items-center justify-between text-[10px] text-neutral-400 pt-1.5 border-t border-neutral-100"
+              >
+                <span class="font-mono flex items-center gap-1">
+                  <i class="fa-solid fa-user-group text-[9px]"></i> 7 peers from
+                  past rooms
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- STATE B: Ultra-Compact Setup deck -->
-        <!-- 1. Added action, method, and enctype for file uploads -->
         <form
           id="nexusCreateArea"
           class="hidden flex-1 flex flex-col justify-between min-h-0"
@@ -135,23 +167,21 @@
           method="POST"
           enctype="multipart/form-data"
         >
-        <!-- Inside <form id="nexusCreateArea"> right before the input fields -->
-        <input type="hidden" id="selectedPaletteInput" name="selected_palette" value="bg-blue-50/60" />
+          <input type="hidden" id="selectedPaletteInput" name="selected_palette" value="bg-blue-50/60" />
           <div class="space-y-3 md:overflow-y-auto pr-0.5">
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[9px] font-bold uppercase text-neutral-400 mb-1 tracking-wider">Group Name</label>
-                <!-- 2. Added name="group_name" -->
                 <input
                   type="text"
                   name="group_name"
                   placeholder="Identity string..."
                   class="w-full bg-neutral-50 border border-neutral-200 rounded-lg p-1.5 text-xs text-neutral-900 focus:outline-none focus:border-sky-500 transition"
+                  required
                 />
               </div>
               <div>
                 <label class="block text-[9px] font-bold uppercase text-neutral-400 mb-1 tracking-wider">Security Engine</label>
-                <!-- 3. Added name="security_engine" and values to options -->
                 <select
                   name="security_engine"
                   class="w-full bg-neutral-50 border border-neutral-200 rounded-lg p-1.5 text-xs text-neutral-700 focus:outline-none focus:border-sky-500 transition"
@@ -167,7 +197,6 @@
                 <label class="text-[9px] font-bold uppercase text-neutral-400 tracking-wider">Lifespan</label>
                 <span id="lifespanValue" class="text-[9px] font-mono text-sky-600">45m</span>
               </div>
-              <!-- 4. Added name="lifespan" -->
               <input
                 type="range"
                 name="lifespan"
@@ -185,7 +214,6 @@
               
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div id="ctxImage" class="bg-neutral-50 p-2 rounded-lg border border-neutral-200/60 text-center flex items-center justify-center min-h-[40px]">
-                  <!-- 5. Added name="backdrop_spec" -->
                   <input
                     type="file"
                     id="bgImgFile"
@@ -200,7 +228,6 @@
                 </div>
 
                 <div id="ctxColor" class="bg-neutral-50 p-2 rounded-lg border border-neutral-200/60 flex items-center justify-center gap-2 min-h-[40px] flex-wrap">
-                  <!-- Preset buttons remain type="button" so they don't accidentally submit the form -->
                   <button type="button" onclick="applyPreset('bg-blue-50/60')" class="w-4 h-4 rounded bg-blue-100 border border-blue-300 hover:scale-110 transition shrink-0"></button>
                   <button type="button" onclick="applyPreset('bg-cyan-50/60')" class="w-4 h-4 rounded bg-cyan-100 border border-cyan-300 hover:scale-110 transition shrink-0"></button>
                   <button type="button" onclick="applyPreset('bg-purple-50/60')" class="w-4 h-4 rounded bg-purple-100 border border-purple-300 hover:scale-110 transition shrink-0"></button>
@@ -213,7 +240,6 @@
 
             <div>
               <label class="block text-[9px] font-bold uppercase text-neutral-400 mb-1 tracking-wider">Description Blueprint</label>
-              <!-- 6. Added name="description" -->
               <textarea
                 rows="2"
                 name="description"
@@ -225,7 +251,7 @@
 
           <button
             type="submit"
-            class="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-semibold py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition mt-2"
+            class="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-semibold py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition mt-2 shrink-0"
           >
             Launch Live Group
           </button>
@@ -234,7 +260,7 @@
 
       <!-- COLUMN 2: History & Overlap Recommendations (5 Cols) -->
       <section
-        class="md:col-span-5 flex flex-col bg-white/60 backdrop-blur-sm border border-neutral-200/80 rounded-xl p-4 md:overflow-hidden shadow-sm"
+        class="md:col-span-5 flex flex-col bg-white/60 backdrop-blur-sm border border-neutral-200/80 rounded-xl p-4 md:overflow-hidden shadow-sm shrink-0 md:shrink"
       >
         <div class="border-b border-neutral-200/60 pb-2.5 mb-3 shrink-0">
           <h3
@@ -245,59 +271,44 @@
           </h3>
         </div>
 
-        <div class="flex-1 md:overflow-y-auto space-y-2.5 pr-0.5">
-          <!-- Suggestion Element Card: Urban Runners Club -->
-          <a
-            class="block p-2 rounded-lg bg-white border border-neutral-200/60 shadow-sm hover:border-sky-500/30 transition text-xs"
-            href="#"
-          >
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-neutral-800 text-[11px] truncate"
-                >Urban Runners Club</span
+        <!-- Dynamic loop moved here -->
+        <div class="flex-1 md:overflow-y-auto space-y-2 pr-0.5">
+          {% for group in groups %}
+            <a href="{{ url_for('group_handler_bp.group', group_id=group.id) }}" class="block">
+              <div
+                class="group border border-neutral-100 bg-neutral-50/50 hover:bg-white hover:border-sky-500/30 p-2.5 rounded-lg transition-all cursor-pointer flex justify-between items-center"
               >
-              <span
-                class="text-[9px] text-emerald-600 font-mono bg-emerald-50 px-1 rounded border border-emerald-100"
-                >Visited</span
-              >
-            </div>
-            <div
-              class="mt-1.5 flex items-center justify-between text-[10px] text-neutral-400 pt-1.5 border-t border-neutral-100"
-            >
-              <span class="font-mono flex items-center gap-1">
-                <i class="fa-solid fa-user-group text-[9px]"></i> 4 peers from
-                past rooms
-              </span>
-            </div>
-          </a>
-
-          <!-- Suggestion Element Card: Film Camera Guild -->
-          <div
-            class="p-2 rounded-lg bg-white border border-neutral-200/60 shadow-sm hover:border-sky-500/30 transition text-xs"
-          >
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-neutral-800 text-[11px] truncate"
-                >Film Camera Guild</span
-              >
-              <span
-                class="text-[9px] text-sky-600 font-mono bg-sky-50 px-1 rounded border border-sky-100"
-                >Member</span
-              >
-            </div>
-            <div
-              class="mt-1.5 flex items-center justify-between text-[10px] text-neutral-400 pt-1.5 border-t border-neutral-100"
-            >
-              <span class="font-mono flex items-center gap-1">
-                <i class="fa-solid fa-user-group text-[9px]"></i> 7 peers from
-                past rooms
-              </span>
-            </div>
-          </div>
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <!-- Dynamic Identity Icon -->
+                  <div class="w-7 h-7 bg-neutral-100 rounded-md flex items-center justify-center text-sm shrink-0 border border-neutral-200/40">
+                    {{ group.settings.identity_icon }}
+                  </div>
+                  
+                  <div class="min-w-0">
+                    <h4 class="text-xs font-semibold text-neutral-900 truncate">
+                      {{ group.group_name }}
+                    </h4>
+                    <p class="text-[11px] text-neutral-500 truncate mt-0.5">
+                      Exploring minimal interface layout parameters.
+                    </p>
+                  </div>
+                </div>
+                
+                <!-- Dynamic Security Engine Badge -->
+                <span
+                  class="text-[9px] font-mono bg-white text-neutral-500 px-1.5 py-0.5 rounded border border-neutral-200/60 shrink-0 ml-2"
+                >
+                  {{ group.settings.security_engine }}
+                </span>
+              </div>
+            </a>
+          {% endfor %}
         </div>
       </section>
     </main>
 
     <!-- Brand Anchor Component Footer -->
-    <footer class="absolute bottom-2 left-1/2 -translate-x-1/2 z-40">
+    <footer class="mt-auto pt-2 flex justify-center shrink-0">
       <a
         href="https://critique-production.up.railway.app/critique_landing"
         target="_blank"

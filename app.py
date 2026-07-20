@@ -1,10 +1,11 @@
 from flask import Flask, render_template, session, redirect, url_for
 from flask_cors import CORS
-from db import db, Group, GroupConfig
+from db import db, Group, GroupConfig, User
 from api.auth import auth_bp
 from api.group_handler import group_handler_bp
 from api.upload import upload_bp
 from api.chat import chat_bp
+from api.card_functions import card_functions_bp
 import os
 
 def get_group_configs(target_group_id):
@@ -58,6 +59,7 @@ def create_app():
     app.register_blueprint(group_handler_bp)
     app.register_blueprint(upload_bp)
     app.register_blueprint(chat_bp)
+    app.register_blueprint(card_functions_bp)
 
     @app.context_processor
     def utility_processor():
@@ -77,8 +79,29 @@ def create_app():
         user_id = session.get('user_id')
         if not user_id:
             return redirect(url_for('auth'))
+        
         groups = Group.query.order_by(Group.created_at.desc()).all()
-        return render_template('feed.html', groups=groups)
+        email = db.session.query(User.email).filter(User.id == user_id).scalar().lower()
+        
+        # Process each group to attach a clean, targeted settings dictionary
+        for group in groups:
+            # Query ONLY the security engine and identity icon rows
+            config_rows = GroupConfig.query.filter(
+                GroupConfig.group_id == group.id,
+                GroupConfig.setting_key.in_(['security_engine', 'identity_icon'])
+            ).all()
+            
+            # Build the mini-settings dictionary
+            settings_dict = {row.setting_key: row.setting_value for row in config_rows}
+            
+            # Set reliable defaults in case they don't exist yet
+            settings_dict.setdefault('security_engine', 'Open Hub Access')
+            settings_dict.setdefault('identity_icon', '🚀')
+            
+            # Attach it to the group object so it is easily accessible in the loop
+            group.settings = settings_dict
+
+        return render_template('feed.html', groups=groups, email=email)
     
     @app.route("/auth")
     def auth():

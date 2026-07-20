@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOCOS | Choose Physician</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#2563eb",
+              secondary: "#64748b",
+              success: "#16a34a",
+              warning: "#d97706",
+              danger: "#dc2626",
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body
+    class="bg-slate-50 min-h-screen flex flex-col text-slate-800 font-sans antialiased relative"
+  >
+    <!-- Header Panel -->
+    <header
+      class="bg-white border-b border-slate-100 shadow-sm px-4 md:px-8 py-3.5"
+    >
+      <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-9 h-9 bg-blue-50 text-primary flex items-center justify-center rounded-xl border border-blue-100 shadow-sm"
+          >
+            <i class="fa-solid fa-heart-pulse text-lg"></i>
+          </div>
+          <span class="font-bold text-xl tracking-tight text-slate-900"
+            >DOCOS</span
+          >
+          <span
+            class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md uppercase tracking-wider border border-slate-200 hidden sm:inline-block"
+            >Physician Re-Routing</span
+          >
+        </div>
+        <div>
+          <a
+            href="patient_dashboard.html"
+            class="text-xs font-semibold text-slate-600 border border-slate-200 bg-white px-4 py-2 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-all flex items-center gap-2"
+          >
+            <i class="fa-solid fa-arrow-left text-slate-400"></i> Return to
+            Dashboard
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Content Context Grid Split -->
+    <main
+      class="flex-grow max-w-7xl w-full mx-auto px-4 md:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start"
+    >
+      <!-- Left Panel: Current Active Profile Context (35% Column Block) -->
+      <section
+        class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-5"
+      >
+        <div>
+          <span
+            class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block"
+            >Active Clinical Assignment</span
+          >
+          <h2 class="text-base font-bold text-slate-900 mt-0.5">
+            Current Primary Practitioner
+          </h2>
+        </div>
+
+        <!-- Aligned Doctor Summary Block UI -->
+        <div
+          class="p-4 bg-slate-50/80 border border-slate-100 rounded-xl text-center space-y-3"
+        >
+          <div
+            id="current-doc-avatar"
+            class="w-16 h-16 rounded-xl bg-blue-50 border border-blue-200 shadow-sm mx-auto flex items-center justify-center text-primary font-bold text-xl"
+          >
+            JS
+          </div>
+          <div class="space-y-0.5">
+            <h3 id="current-doc-name" class="font-bold text-slate-900 text-sm">
+              Dr. Jane Smith, MD
+            </h3>
+            <p
+              id="current-doc-specialty"
+              class="text-[11px] font-semibold text-primary bg-blue-50/60 border border-blue-100 px-2 py-0.5 rounded-md inline-block"
+            >
+              Senior Cardiologist
+            </p>
+          </div>
+
+          <div
+            class="pt-3 border-t border-slate-200/60 text-xs text-slate-600 space-y-2 text-left"
+          >
+            <p class="flex items-center gap-2 text-[11px]">
+              <i class="fa-solid fa-hospital text-slate-400 w-4"></i>
+              <span
+                ><strong>Clinic Area:</strong>
+                <span id="current-doc-clinic">Thika Heart Clinic</span></span
+              >
+            </p>
+            <p class="flex items-center gap-2 text-[11px]">
+              <i class="fa-solid fa-calendar-check text-slate-400 w-4"></i>
+              <span
+                ><strong>Assigned Period:</strong> Current Active Baseline</span
+              >
+            </p>
+          </div>
+        </div>
+
+        <!-- Explainer Callout Card -->
+        <div
+          class="p-3.5 bg-blue-50/60 border border-blue-100 rounded-xl flex items-start gap-2.5"
+        >
+          <i class="fa-solid fa-circle-info text-primary text-xs mt-0.5"></i>
+          <p class="text-[11px] text-blue-800 leading-normal">
+            Modifying your operational provider automatically synchronizes
+            system profiles. Digital intakes, vitals telemetry, and pharmacy
+            routing queues instantly map to the alternative clinic node
+            destination selected.
+          </p>
+        </div>
+      </section>
+
+      <!-- Right Panel: Engine Matching Search Dashboard (65% Column Block) -->
+      <section
+        class="lg:col-span-2 bg-white rounded-2xl shadow-sm flex flex-col border border-slate-100 overflow-hidden"
+      >
+        <!-- Input Filtering Actions Bar -->
+        <div class="p-5 border-b border-slate-100 space-y-4 bg-white">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">
+              Discover Alternative Providers
+            </h2>
+            <p class="text-xs text-slate-400">
+              Search indexed network practitioners available near your clinical
+              branch parameters.
+            </p>
+          </div>
+
+          <!-- Input Row -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="relative flex items-center">
+              <i
+                class="fa-solid fa-magnifying-glass absolute left-3 text-xs text-slate-400"
+              ></i>
+              <input
+                type="text"
+                id="search-input"
+                oninput="filterPhysicians()"
+                placeholder="Search specialty fields or surname..."
+                class="w-full bg-slate-50 border border-slate-200 focus:border-primary rounded-xl py-2 pl-9 pr-3 text-xs text-slate-800 focus:outline-none transition-colors"
+              />
+            </div>
+
+            <div class="relative flex items-center">
+              <i
+                class="fa-solid fa-location-dot absolute left-3 text-xs text-slate-400"
+              ></i>
+              <select
+                id="location-select"
+                onchange="filterPhysicians()"
+                class="w-full bg-slate-50 border border-slate-200 focus:border-primary rounded-xl py-2 pl-9 pr-8 text-xs text-slate-700 font-medium focus:outline-none transition-colors cursor-pointer appearance-none"
+              >
+                <option value="all">All Clinics & Locations (Global)</option>
+                <option value="northside">
+                  Northside Medical Hub (4.2 km)
+                </option>
+                <option value="downtown">
+                  Downtown Family Health (0.8 km)
+                </option>
+                <option value="westend">West End Care Point (310 km)</option>
+              </select>
+              <i
+                class="fa-solid fa-chevron-down absolute right-3 text-[9px] text-slate-400 pointer-events-none"
+              ></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Output Container Row -->
+        <div class="p-5 space-y-3">
+          <!-- Doctor Card 1 -->
+          <div
+            class="doc-card flex items-center justify-between p-4 border border-slate-100 rounded-xl hover:border-slate-200 hover:bg-slate-50/50 transition-all bg-white"
+            data-name="sarah jenkins family medicine"
+            data-location="northside"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center font-bold text-indigo-600 text-xs"
+              >
+                SJ
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">
+                  Dr. Sarah Jenkins
+                </h4>
+                <p class="text-[11px] text-slate-500">
+                  <span class="doc-spec">Family Medicine</span> &bull;
+                  <span class="text-slate-400 doc-clinic"
+                    >Northside Hub (4.2 km)</span
+                  >
+                </p>
+              </div>
+            </div>
+            <button
+              onclick="
+                confirmChange(
+                  'Dr. Sarah Jenkins',
+                  'Family Medicine',
+                  'Northside Hub',
+                  'SJ',
+                )
+              "
+              class="bg-primary hover:bg-blue-700 text-white font-semibold text-xs py-1.5 px-3 rounded-lg transition-colors shadow-sm"
+            >
+              Select Provider
+            </button>
+          </div>
+
+          <!-- Doctor Card 2 -->
+          <div
+            class="doc-card flex items-center justify-between p-4 border border-slate-100 rounded-xl hover:border-slate-200 hover:bg-slate-50/50 transition-all bg-white"
+            data-name="david chen pediatrics internal"
+            data-location="downtown"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center font-bold text-emerald-600 text-xs"
+              >
+                DC
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">Dr. David Chen</h4>
+                <p class="text-[11px] text-slate-500">
+                  <span class="doc-spec">Internal Medicine</span> &bull;
+                  <span class="text-slate-400 doc-clinic"
+                    >Downtown Clinic (0.8 km)</span
+                  >
+                </p>
+              </div>
+            </div>
+            <button
+              onclick="
+                confirmChange(
+                  'Dr. David Chen',
+                  'Internal Medicine',
+                  'Downtown Clinic',
+                  'DC',
+                )
+              "
+              class="bg-primary hover:bg-blue-700 text-white font-semibold text-xs py-1.5 px-3 rounded-lg transition-colors shadow-sm"
+            >
+              Select Provider
+            </button>
+          </div>
+
+          <!-- Doctor Card 3 -->
+          <div
+            class="doc-card flex items-center justify-between p-4 border border-slate-100 rounded-xl hover:border-slate-200 hover:bg-slate-50/50 transition-all bg-white"
+            data-name="marcus vance cardiology"
+            data-location="westend"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center font-bold text-amber-600 text-xs"
+              >
+                MV
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">
+                  Dr. Marcus Vance
+                </h4>
+                <p class="text-[11px] text-slate-500">
+                  <span class="doc-spec">Cardiology Specialist</span> &bull;
+                  <span class="text-danger font-semibold doc-clinic"
+                    >West End Branch (310 km)</span
+                  >
+                </p>
+              </div>
+            </div>
+            <button
+              onclick="
+                confirmChange(
+                  'Dr. Marcus Vance',
+                  'Cardiology Specialist',
+                  'West End Branch',
+                  'MV',
+                )
+              "
+              class="bg-primary hover:bg-blue-700 text-white font-semibold text-xs py-1.5 px-3 rounded-lg transition-colors shadow-sm"
+            >
+              Select Provider
+            </button>
+          </div>
+
+          <!-- Fallback Empty State Alert Module -->
+          <div id="empty-state" class="hidden text-center py-10 space-y-2">
+            <i class="fa-solid fa-user-slash text-xl text-slate-300"></i>
+            <p class="text-xs text-slate-400 font-medium">
+              No physicians match your filter rules.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Custom Tailwind Confirmation Alert Toast/Modal Alternative -->
+    <div
+      id="custom-modal"
+      class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-all"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 text-center space-y-4 transform scale-95 transition-transform duration-200"
+      >
+        <div
+          class="w-12 h-12 bg-green-50 text-success border border-green-100 flex items-center justify-center rounded-full mx-auto text-xl shadow-sm"
+        >
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div class="space-y-1">
+          <h3 class="font-bold text-slate-900 text-base">Provider Updated</h3>
+          <p
+            id="modal-message"
+            class="text-xs text-slate-500 leading-relaxed"
+          ></p>
+        </div>
+        <button
+          onclick="closeModal()"
+          class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2.5 px-4 rounded-xl transition-colors shadow-sm"
+        >
+          Acknowledge
+        </button>
+      </div>
+    </div>
+
+    <!-- Embedded Filtering & Interactive App Systems Data Logic -->
+    <script>
+      function filterPhysicians() {
+        const keyword = document
+          .getElementById("search-input")
+          .value.toLowerCase();
+        const selectedLocation =
+          document.getElementById("location-select").value;
+        const cards = document.querySelectorAll(".doc-card");
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const nameData = card.getAttribute("data-name");
+          const locationData = card.getAttribute("data-location");
+          const matchesKeyword = nameData.includes(keyword);
+          const matchesLocation =
+            selectedLocation === "all" || locationData === selectedLocation;
+
+          if (matchesKeyword && matchesLocation) {
+            card.style.display = "flex";
+            visibleCount++;
+          } else {
+            card.style.display = "none";
+          }
+        });
+
+        const emptyState = document.getElementById("empty-state");
+        if (visibleCount === 0) {
+          emptyState.classList.remove("hidden");
+        } else {
+          emptyState.classList.add("hidden");
+        }
+      }
+
+      function confirmChange(doctorName, specialty, clinic, initials) {
+        // Dynamically shift values on the Left Profile panel
+        document.getElementById("current-doc-name").textContent =
+          doctorName + ", MD";
+        document.getElementById("current-doc-specialty").textContent =
+          specialty;
+        document.getElementById("current-doc-clinic").textContent = clinic;
+        document.getElementById("current-doc-avatar").textContent = initials;
+
+        // Show clean matching custom UI Modal confirmation element
+        const modal = document.getElementById("custom-modal");
+        document.getElementById("modal-message").innerHTML =
+          `Future system appointment entries have been securely routed to <strong>${doctorName}</strong>.`;
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("custom-modal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+    </script>
+  </body>
+</html>

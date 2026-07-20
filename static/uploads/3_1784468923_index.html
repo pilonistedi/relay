@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Docos | Login</title>
+    <link href="/static/output.css" rel="stylesheet" />
+  </head>
+  <body
+    class="bg-gradient-to-r from-blue-500 to-purple-600 min-h-screen flex flex-col text-white"
+  >
+    <!-- Header -->
+    <header class="p-6">
+      <h1 class="font-extrabold text-3xl tracking-wider">DOCOS</h1>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex items-center justify-center p-4">
+      <div
+        class="w-full max-w-sm bg-white text-gray-800 p-8 rounded-xl shadow-lg"
+      >
+        <!-- Role Switcher Tabs -->
+        <div class="grid grid-cols-2 p-1 bg-gray-100 rounded-lg mb-6 text-sm">
+          <button
+            type="button"
+            id="btn-patient"
+            class="py-2 rounded-md font-semibold transition-all duration-200 bg-white text-blue-600 shadow-sm cursor-pointer"
+            onclick="switchRole('patient')"
+          >
+            Patient
+          </button>
+          <button
+            type="button"
+            id="btn-doctor"
+            class="py-2 rounded-md font-medium transition-all duration-200 text-gray-500 hover:text-gray-800 cursor-pointer"
+            onclick="switchRole('doctor')"
+          >
+            Doctor
+          </button>
+        </div>
+
+        <form
+          action="./templets/patient.html"
+          method="POST"
+          class="flex flex-col"
+        >
+          <!-- Hidden input to send the active role to your backend -->
+          <input type="hidden" name="role" id="role-input" value="patient" />
+
+          <h2
+            id="form-heading"
+            class="text-2xl font-bold mb-6 text-center text-gray-900"
+          >
+            Patient Login
+          </h2>
+
+          <!-- Username Input -->
+          <div class="mb-4">
+            <label
+              for="username"
+              class="block text-sm font-semibold text-gray-600 mb-1"
+              >Username</label
+            >
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter your username"
+              autocomplete="username"
+              required
+              class="border-2 border-gray-200 p-2.5 rounded-md w-full focus:outline-none focus:border-blue-500 transition-colors"
+            />
+          </div>
+
+          <!-- Password Input -->
+          <div class="mb-6">
+            <label
+              for="password"
+              class="block text-sm font-semibold text-gray-600 mb-1"
+              >Password</label
+            >
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+              class="border-2 border-gray-200 p-2.5 rounded-md w-full focus:outline-none focus:border-blue-500 transition-colors"
+            />
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            id="submit-button"
+            class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-md transition-colors duration-200 shadow-md hover:shadow-lg cursor-pointer"
+          >
+            Login as Patient
+          </button>
+        </form>
+      </div>
+    </main>
+
+    <!-- Simple JS to handle the UI toggle -->
+    <script>
+      function switchRole(role) {
+        const btnPatient = document.getElementById("btn-patient");
+        const btnDoctor = document.getElementById("btn-doctor");
+        const roleInput = document.getElementById("role-input");
+        const formHeading = document.getElementById("form-heading");
+        const submitButton = document.getElementById("submit-button");
+
+        // Update hidden input value
+        roleInput.value = role;
+
+        if (role === "patient") {
+          // Update heading & button text
+          formHeading.textContent = "Patient Login";
+          submitButton.textContent = "Login as Patient";
+
+          // Reset Patient button state (Active)
+          btnPatient.className =
+            "py-2 rounded-md font-semibold transition-all duration-200 bg-white text-blue-600 shadow-sm cursor-pointer";
+
+          // Reset Doctor button state (Inactive)
+          btnDoctor.className =
+            "py-2 rounded-md font-medium transition-all duration-200 text-gray-500 hover:text-gray-800 cursor-pointer";
+        } else {
+          // Update heading & button text
+          formHeading.textContent = "Doctor Login";
+          submitButton.textContent = "Login as Doctor";
+
+          // Reset Patient button state (Inactive)
+          btnPatient.className =
+            "py-2 rounded-md font-medium transition-all duration-200 text-gray-500 hover:text-gray-800 cursor-pointer";
+
+          // Reset Doctor button state (Active)
+          btnDoctor.className =
+            "py-2 rounded-md font-semibold transition-all duration-200 bg-white text-blue-600 shadow-sm cursor-pointer";
+        }
+      }
+    </script>
+  </body>
+</html>

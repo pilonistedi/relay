@@ -41,7 +41,7 @@
     style="background-image: url('{{ url_for('static', filename='images/' ~ settings.backdrop_filename) }}');"
   >
     <header
-      class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between w-full border-b border-neutral-900 pb-3.5 shrink-0"
+      class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between w-full border-b border-neutral-900 pb-4 shrink-0"
     >
       <!-- Left Side: Group Banner Status Card -->
       <div
@@ -61,9 +61,14 @@
               {{ settings.group_name }}
             </h1>
             <span
-              class="text-[8px] sm:text-[9px] font-mono {{ settings.theme_badge_bg }} {{ settings.theme_badge_text }} px-1.5 py-0.5 rounded backdrop-blur-sm"
+              class="text-[8px] sm:text-[9px] font-mono {{ settings.theme_badge_bg }} {{ settings.theme_badge_text }} px-1.5 py-0.5 rounded backdrop-blur-sm shrink-0"
             >
               {{ settings.security_engine }}
+            </span>
+            <span
+              class="text-[8px] sm:text-[9px] font-mono {{ settings.theme_badge_bg }} {{ settings.theme_badge_text }} px-1.5 py-0.5 rounded backdrop-blur-sm shrink-0"
+            >
+              Creator: Max
             </span>
           </div>
           <p
@@ -74,63 +79,55 @@
         </div>
       </div>
 
-      <!-- Right Side: Control Grid -->
+      <!-- Right Side: Clean Responsive Control Flex Container -->
       <div
-        class="grid grid-cols-2 gap-2 w-full sm:flex sm:items-center sm:justify-end sm:gap-2.5 lg:w-auto"
+        class="flex flex-col gap-2 w-full sm:flex-row sm:items-center sm:justify-end sm:gap-2.5 lg:w-auto"
       >
-        <!-- Meta Readouts & Sharing Controls -->
-        <div
-          class="col-span-2 flex items-center justify-between sm:justify-start gap-3 bg-neutral-950/40 backdrop-blur-md border border-neutral-800/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs h-9"
-        >
-          <div class="flex items-center gap-1.5">
-            <span
-              class="w-1.5 h-1.5 {{ settings.theme_pulse_dot }} rounded-full animate-pulse"
-            ></span>
-            <span class="text-neutral-400">Lifespan:</span>
-            <span
-              id="globalLifesDisplay"
-              class="font-mono font-semibold text-neutral-200"
-            >
-              {{ settings.lifespan_minutes }}m limit
-            </span>
-          </div>
-          <div class="w-px h-3 bg-neutral-800"></div>
+        <!-- Combined Action Container (Buttons & Share Info) -->
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:justify-end">
 
-          <button
-            onclick="
-              navigator.clipboard.writeText(window.location.href);
-              alert('Workspace link copied!');
-            "
-            class="text-neutral-400 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
+
+          <!-- Meta Readouts & Sharing Controls -->
+          <div
+            class="flex items-center justify-between gap-3 bg-neutral-950/40 backdrop-blur-md border border-neutral-800/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs h-9 flex-auto sm:flex-initial"
           >
-            <i class="fa-solid fa-link text-[10px] text-neutral-500"></i>
-            <span>Share Workspace</span>
+            <div class="flex items-center gap-1.5 whitespace-nowrap">
+              <span class="w-1.5 h-1.5 {{ settings.theme_pulse_dot }} rounded-full animate-pulse"></span>
+              <span class="text-neutral-400">Lifespan:</span>
+              <span id="globalLifesDisplay" class="font-mono font-semibold text-neutral-200">
+                {{ settings.lifespan_minutes }}m limit
+              </span>
+            </div>
+            
+            <div class="w-px h-3 bg-neutral-800"></div>
+
+            <button
+              onclick="
+                navigator.clipboard.writeText(window.location.href);
+                alert('Workspace link copied!');
+              "
+              class="text-neutral-400 hover:text-white transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            >
+              <i class="fa-solid fa-link text-[10px] text-neutral-500"></i>
+              <span>Share Workspace</span>
+            </button>
+          </div>
+
+          <!-- Room System Settings (Only visible to the creator) -->
+          {% if is_creator %}
+          <button
+            class="h-9 text-[11px] sm:text-xs bg-neutral-950 hover:bg-neutral-900 text-neutral-300 px-3 py-2 rounded-xl border border-neutral-800 hover:border-neutral-700 transition flex items-center justify-center gap-1.5 font-medium shadow-sm cursor-pointer flex-1 sm:flex-initial"
+            onclick="toggleModal('adminModal')"
+          >
+            <i class="fa-solid fa-sliders text-neutral-400 text-[10px]"></i>
+            <span>Settings</span>
           </button>
+          {% endif %}
+
         </div>
-
-        <!-- Action Button: Dynamic Add Card Button -->
-        <button
-          class="h-9 text-[11px] sm:text-xs {{ settings.theme_interactive_bg }} {{ settings.theme_badge_text }} {{ settings.theme_interactive_hover_text }} px-3 py-2 rounded-xl border {{ settings.theme_accent_border }} {{ settings.theme_interactive_hover_border }} transition flex items-center justify-center gap-1.5 font-medium shadow-sm cursor-pointer"
-          onclick="handleAddCard()"
-        >
-          <i class="fa-solid fa-plus text-[9px]"></i>
-          <span>Add Card</span>
-        </button>
-
-        <!-- Room System Settings -->
-        {% if is_creator %}
-        <!-- Room System Settings (Only visible to the creator) -->
-        <button
-          class="h-9 text-[11px] sm:text-xs bg-neutral-950 hover:bg-neutral-900 text-neutral-300 px-3 py-2 rounded-xl border border-neutral-800 hover:border-neutral-700 transition flex items-center justify-center gap-1.5 font-medium shadow-sm cursor-pointer"
-          onclick="toggleModal('adminModal')"
-        >
-          <i class="fa-solid fa-sliders text-neutral-400 text-[10px]"></i>
-          <span>Settings</span>
-        </button>
-        {% endif %}
       </div>
     </header>
-
+    {% if not is_locked %}
     <main
       class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 min-h-0 md:overflow-hidden"
     >
@@ -216,22 +213,24 @@
               </a>
 
               <!-- Trash Delete Action -->
-              <button
-                onclick="deleteDrop({{ drop.id }})"
-                class="w-8 h-8 flex items-center justify-center bg-neutral-950/80 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-neutral-400 rounded-xl text-xs border border-white/10 backdrop-blur-md transition duration-200 shrink-0"
-                title="Delete Asset"
-              >
-                <i class="fa-regular fa-trash-can"></i>
-              </button>
+              {% if session.get('user_id') and drop.user and session.get('user_id') == drop.user.id %}
+                <button
+                  onclick="deleteMyDrop('{{ group.id }}', '{{ drop.id }}')"
+                  class="w-8 h-8 flex items-center justify-center bg-neutral-950/80 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-neutral-400 rounded-xl text-xs border border-white/10 backdrop-blur-md transition duration-200 shrink-0"
+                  title="Delete Asset"
+                >
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
 
-              <!-- Gear/Settings Action restored here! -->
-              <button
-                onclick="openCardSettings({{ drop.id }})"
-                class="w-8 h-8 flex items-center justify-center bg-neutral-950/80 hover:bg-neutral-800 text-neutral-300 rounded-xl text-xs border border-white/10 backdrop-blur-md transition duration-200 shrink-0"
-                title="Card Settings"
-              >
-                <i class="fa-solid fa-gear"></i>
-              </button>
+                <!-- Gear/Settings Action restored here! -->
+                <button
+                  onclick="openCardSettings({{ drop.id }})"
+                  class="w-8 h-8 flex items-center justify-center bg-neutral-950/80 hover:bg-neutral-800 text-neutral-300 rounded-xl text-xs border border-white/10 backdrop-blur-md transition duration-200 shrink-0"
+                  title="Card Settings"
+                >
+                  <i class="fa-solid fa-gear"></i>
+                </button>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -306,7 +305,7 @@
               <div class="flex justify-between items-baseline mb-1">
                 <span class="font-medium text-white flex items-center gap-1.5">
                   <!-- Dynamic User profile emoji & Username -->
-                  <span class="text-xs">{{ msg.user.profile_icon if msg.user else '👾' }}</span>
+                  <span class="text-xs">{{ msg.user.profile_icon if msg.user else '💬' }}</span>
                   <strong class="{{ settings.theme_badge_text }} font-medium">
                     {{ msg.user.display_username if msg.user else "Anonymous" }}
                   </strong>
@@ -382,6 +381,44 @@
         </div>
       </div>
     </main>
+    {% endif %}
+    {% if is_locked %}
+    <!-- Password Section (Fills remaining height below header) -->
+    <section class="flex-1 flex items-center justify-center min-h-[400px]">
+      
+      <!-- Central Password Card (Matches group theme & borders) -->
+      <div class="w-full max-w-sm rounded-2xl border border-neutral-800/90 bg-neutral-950/40 backdrop-blur-md p-6 sm:p-8 text-center shadow-2xl shadow-black/60">
+        
+        <!-- Lock Icon Container -->
+        <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-neutral-950 border border-neutral-800/80 flex items-center justify-center {{ settings.theme_badge_text }} text-lg shadow-inner">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+
+        <h2 class="text-base sm:text-lg font-bold text-white tracking-tight">Protected Area</h2>
+        <p class="mt-1 text-xs text-neutral-400">Please enter the password to access this workspace.</p>
+        
+        <!-- Password Form -->
+        <form class="mt-6 flex flex-col gap-3" method="POST" action="">
+          <input 
+            type="password" 
+            name="password"
+            placeholder="Enter password..." 
+            required 
+            autofocus
+            class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-neutral-200 outline-none transition focus:border-neutral-700 {{ settings.theme_focus_ring }} placeholder-neutral-600 font-sans"
+          />
+          
+          <button 
+            type="submit" 
+            class="w-full {{ settings.theme_btn_bg }} font-semibold text-xs py-2.5 rounded-xl uppercase tracking-wider transition shadow-lg cursor-pointer"
+          >
+            Unlock Workspace
+          </button>
+        </form>
+
+      </div>
+    </section>
+    {% endif %}
 
     <!-- Global Configuration Admin Modal Overlay Layout -->
     <div
@@ -433,6 +470,97 @@
       </div>
     </div>
 
+    <!-- Card Settings Modal Overlay Layout -->
+  <div
+    id="cardSettingsModal"
+    class="hidden fixed inset-0 bg-neutral-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    onclick="handleBackdropClick(event, 'cardSettingsModal')"
+  >
+    <div
+      class="bg-neutral-900 border border-neutral-800 rounded-xl w-full max-w-sm p-5 shadow-2xl relative"
+      onclick="event.stopPropagation()"
+    >
+      <!-- Hidden input to store the card/drop ID currently being edited -->
+      <input type="hidden" id="cardSettingsId" value="" />
+
+      <div
+        class="flex justify-between items-center border-b border-neutral-800 pb-3 mb-4"
+      >
+        <h3
+          class="text-neutral-200 font-semibold text-sm flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-sliders {{ settings.theme_badge_text }} text-xs"></i>
+          Card Settings
+        </h3>
+        <button
+          class="text-neutral-500 hover:text-neutral-300 transition text-sm font-medium cursor-pointer"
+          onclick="toggleModal('cardSettingsModal')"
+        >
+          Close
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Setting 1: Custom Name / Title -->
+        <div>
+          <label
+            class="block text-[10px] font-bold uppercase text-neutral-400 mb-1.5 tracking-wider"
+          >
+            Display Name
+          </label>
+          <input
+            type="text"
+            id="cardNameInput"
+            placeholder="Rename this slot..."
+            class="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-white text-sm focus:outline-none {{ settings.theme_focus_ring }} transition"
+          />
+        </div>
+
+        <!-- Setting 2: User Emoji -->
+        <div>
+          <label
+            class="block text-[10px] font-bold uppercase text-neutral-400 mb-1.5 tracking-wider"
+          >
+            Slot Emoji
+          </label>
+          <input
+            type="text"
+            id="cardEmojiInput"
+            placeholder="e.g. 👋, 😄, 🔥"
+            maxlength="2"
+            class="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-white text-sm focus:outline-none {{ settings.theme_focus_ring }} transition"
+          />
+        </div>
+
+        <!-- Setting 3: Card Tint/Color Selector -->
+        <div>
+          <label
+            class="block text-[10px] font-bold uppercase text-neutral-400 mb-1.5 tracking-wider"
+          >
+            Background Gradient Tint
+          </label>
+          <select
+            id="cardColorInput"
+            class="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-white text-sm focus:outline-none {{ settings.theme_focus_ring }} transition"
+          >
+            <option value="from-blue-600 to-indigo-900">Blue/Indigo Tint</option>
+            <option value="from-emerald-600 to-teal-900">Emerald/Teal Tint</option>
+            <option value="from-rose-600 to-pink-900">Rose/Pink Tint</option>
+            <option value="from-amber-600 to-orange-900">Amber/Orange Tint</option>
+            <option value="from-purple-600 to-fuchsia-900">Purple/Fuchsia Tint</option>
+          </select>
+        </div>
+      </div>
+
+      <button
+        class="w-full {{ settings.theme_btn_bg }} font-semibold py-2.5 rounded-lg text-xs uppercase tracking-wider transition mt-5 shadow-md cursor-pointer"
+        onclick="saveCardSettings()"
+      >
+        Save Card Changes
+      </button>
+    </div>
+  </div>
+
     <input
       type="file"
       id="globalFileInput"
@@ -461,6 +589,6 @@
       </a>
     </div>
 
-    <script src="{{ url_for('static', filename='script/index.js') }}"></script>
+    <script src="{{ url_for('static', filename='script/group.js') }}"></script>
   </body>
 </html>

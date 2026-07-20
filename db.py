@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timezone
 
 db = SQLAlchemy()
 
@@ -14,7 +14,7 @@ class User(db.Model):
     display_username = db.Column(db.String(50), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)
     profile_icon = db.Column(db.String(10), default='👾')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Relationships for back-referencing if needed
     groups_created = db.relationship('Group', backref='creator', cascade='all, delete-orphan', lazy=True)

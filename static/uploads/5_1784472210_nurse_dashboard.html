@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOCOS - Universal Nurse Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      @media (max-width: 767px) {
+        .mobile-drawer-transition {
+          transition: transform 0.3s ease-in-out;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 font-sans antialiased h-screen flex flex-col md:flex-row overflow-hidden"
+  >
+    <!-- SIDEBAR NAVIGATION: Hidden on mobile, persistent on Tablet & PC -->
+    <aside
+      class="hidden md:flex md:w-20 lg:w-64 bg-white border-r border-slate-200 flex-col justify-between p-4 z-10 flex-shrink-0"
+    >
+      <div class="space-y-6">
+        <div class="flex items-center space-x-3 px-2 py-1">
+          <span class="text-emerald-600 font-bold text-2xl tracking-tight"
+            >DOCOS</span
+          >
+          <span
+            class="hidden lg:inline-block text-xs bg-slate-100 px-2 py-1 rounded-md text-slate-500 font-semibold"
+            >Nurse v2.0</span
+          >
+        </div>
+
+        <nav class="space-y-1">
+          <button
+            onclick="switchViewMode('queue')"
+            id="side-btn-queue"
+            class="w-full flex items-center justify-center lg:justify-start space-x-3 px-3 py-3 rounded-xl bg-emerald-50 text-emerald-600 font-bold transition-all"
+          >
+            <i class="fa-solid fa-users-rectangle text-lg"></i>
+            <span class="hidden lg:inline text-sm">Active Patient Queue</span>
+          </button>
+          <button
+            onclick="switchViewMode('register')"
+            id="side-btn-register"
+            class="w-full flex items-center justify-center lg:justify-start space-x-3 px-3 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-semibold transition-all"
+          >
+            <i class="fa-solid fa-user-plus text-lg"></i>
+            <span class="hidden lg:inline text-sm">Fast Patient Intake</span>
+          </button>
+          <a
+            href="nurse_profile.html"
+            class="w-full flex items-center justify-center lg:justify-start space-x-3 px-3 py-3 rounded-xl bg-emerald-50 text-emerald-600 font-bold transition-all"
+          >
+            <i class="fa-solid fa-user-gear text-lg"></i>
+            <span class="hidden lg:inline text-sm">My Profile</span>
+          </a>
+        </nav>
+      </div>
+      <a href="nurse_profile.html">
+        <div
+          class="border-t border-slate-100 pt-4 flex items-center space-x-3 px-2"
+        >
+          <div
+            class="h-10 w-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-700 font-bold"
+          >
+            NS
+          </div>
+          <div class="hidden lg:block text-left truncate max-w-[140px]">
+            <p class="text-xs font-bold text-slate-900">Nurse Station 1</p>
+            <p class="text-[10px] text-slate-400">Shift Active</p>
+          </div>
+        </div>
+      </a>
+    </aside>
+
+    <!-- MAIN APP WRAPPER -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+      <!-- TOP BAR: Universal search & mobile brand header -->
+      <header
+        class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm z-10 flex-shrink-0"
+      >
+        <div class="flex items-center space-x-3 w-full max-w-xl">
+          <span
+            class="md:hidden text-emerald-600 font-bold text-xl tracking-tight"
+            >DOCOS</span
+          >
+          <div class="relative flex-1">
+            <i
+              class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-400 text-sm"
+            ></i>
+            <input
+              type="text"
+              placeholder="Search patient name, ID, or room..."
+              class="w-full bg-slate-100 placeholder-slate-400 text-sm rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-transparent focus:bg-white transition-all"
+            />
+          </div>
+          <button
+            class="h-11 w-11 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors"
+            title="Scan Patient Wristband"
+          >
+            <i class="fa-solid fa-qrcode text-lg"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- MOBILE-ONLY TOP NAVIGATION SWITCHER -->
+      <nav
+        class="md:hidden bg-white border-b border-slate-200 flex justify-around text-center flex-shrink-0 shadow-sm"
+      >
+        <button
+          onclick="switchViewMode('queue')"
+          id="mob-btn-queue"
+          class="flex-1 py-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-600 flex flex-col items-center space-y-0.5"
+        >
+          <i class="fa-solid fa-users-rectangle text-base"></i>
+          <span>Active Queue (3)</span>
+        </button>
+        <button
+          onclick="switchViewMode('register')"
+          id="mob-btn-register"
+          class="flex-1 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 flex flex-col items-center space-y-0.5"
+        >
+          <i class="fa-solid fa-user-plus text-base"></i>
+          <span>Quick Intake</span>
+        </button>
+      </nav>
+
+      <!-- MULTI-COLUMN INTERFACE CONTAINER -->
+      <div class="flex-1 flex overflow-hidden relative">
+        <!-- CONTROLLER VIEW 1: QUEUE COLUMN -->
+        <section
+          id="pane-queue"
+          class="w-full md:w-1/2 lg:w-5/12 border-r border-slate-200 flex flex-col bg-slate-50 h-full flex-shrink-0"
+        >
+          <div class="p-4 overflow-y-auto no-scrollbar space-y-3 flex-1 pb-20">
+            <div class="flex items-center justify-between mb-2">
+              <h2
+                class="text-xs font-bold uppercase tracking-wider text-slate-400"
+              >
+                Waiting Room Queue
+              </h2>
+              <span
+                class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium"
+                >Avg. Wait: 14m</span
+              >
+            </div>
+
+            <!-- Patient 1: ESI 2 -->
+            <div
+              onclick="
+                selectPatient(
+                  'John Doe',
+                  'ESI 2 - High Urgent',
+                  'Severe Chest Pain',
+                  'Allergies: Penicillin',
+                )
+              "
+              class="patient-card bg-white border-l-4 border-rose-500 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex justify-between items-center border border-transparent active-card"
+            >
+              <div class="space-y-1">
+                <div class="flex items-center space-x-2">
+                  <span class="font-bold text-slate-900 text-base"
+                    >John Doe</span
+                  >
+                  <span class="text-xs text-slate-400">Age: 45</span>
+                </div>
+                <p
+                  class="text-sm text-slate-500 truncate max-w-[180px] sm:max-w-xs"
+                >
+                  <strong class="text-slate-700">Complaint:</strong> Severe
+                  Chest Pain
+                </p>
+                <p class="text-xs text-slate-400">
+                  <i class="fa-regular fa-clock mr-1"></i> Waiting for 8 mins
+                </p>
+              </div>
+              <div class="flex flex-col items-end space-y-2">
+                <span
+                  class="bg-rose-50 text-rose-600 text-xs px-2.5 py-1 rounded-lg font-bold"
+                  >ESI 2</span
+                >
+                <span
+                  class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium"
+                  >Room 3</span
+                >
+              </div>
+            </div>
+
+            <!-- Patient 2: ESI 3 -->
+            <div
+              onclick="
+                selectPatient(
+                  'Sarah Jenkins',
+                  'ESI 3 - Urgent',
+                  'Suspected Fracture',
+                  'Fall Risk Level: Moderate',
+                )
+              "
+              class="patient-card bg-white border-l-4 border-amber-500 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex justify-between items-center border border-transparent"
+            >
+              <div class="space-y-1">
+                <div class="flex items-center space-x-2">
+                  <span class="font-bold text-slate-900 text-base"
+                    >Sarah Jenkins</span
+                  >
+                  <span class="text-xs text-slate-400">Age: 29</span>
+                </div>
+                <p
+                  class="text-sm text-slate-500 truncate max-w-[180px] sm:max-w-xs"
+                >
+                  <strong class="text-slate-700">Complaint:</strong> Suspected
+                  Wrist Fracture
+                </p>
+                <p class="text-xs text-slate-400">
+                  <i class="fa-regular fa-clock mr-1"></i> Waiting for 15 mins
+                </p>
+              </div>
+              <div class="flex flex-col items-end space-y-2">
+                <span
+                  class="bg-amber-50 text-amber-600 text-xs px-2.5 py-1 rounded-lg font-bold"
+                  >ESI 3</span
+                >
+                <span
+                  class="text-[11px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md font-medium"
+                  >Triage</span
+                >
+              </div>
+            </div>
+
+            <!-- Patient 3: ESI 4 -->
+            <div
+              onclick="
+                selectPatient(
+                  'Michael Chang',
+                  'ESI 4 - Less Urgent',
+                  'Prescription Refill',
+                  'NKDA',
+                )
+              "
+              class="patient-card bg-white border-l-4 border-emerald-500 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex justify-between items-center border border-transparent"
+            >
+              <div class="space-y-1">
+                <div class="flex items-center space-x-2">
+                  <span class="font-bold text-slate-900 text-base"
+                    >Michael Chang</span
+                  >
+                  <span class="text-xs text-slate-400">Age: 62</span>
+                </div>
+                <p
+                  class="text-sm text-slate-500 truncate max-w-[180px] sm:max-w-xs"
+                >
+                  <strong class="text-slate-700">Complaint:</strong> Blood
+                  Pressure Refill
+                </p>
+                <p class="text-xs text-slate-400">
+                  <i class="fa-regular fa-clock mr-1"></i> Waiting for 22 mins
+                </p>
+              </div>
+              <div class="flex flex-col items-end space-y-2">
+                <span
+                  class="bg-emerald-50 text-emerald-600 text-xs px-2.5 py-1 rounded-lg font-bold"
+                  >ESI 4</span
+                >
+                <span
+                  class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium"
+                  >Waiting</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CONTROLLER VIEW 2: DYNAMIC INTAKE REGISTRATION (Hidden by default, can take full width or shared grid width) -->
+        <section
+          id="pane-register"
+          class="hidden w-full bg-slate-50 p-4 md:p-6 overflow-y-auto no-scrollbar h-full"
+        >
+          <div
+            class="max-w-2xl mx-auto bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-slate-200"
+          >
+            <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center">
+              <i class="fa-solid fa-address-card text-emerald-600 mr-2"></i>
+              Fast Patient Intake
+            </h2>
+            <form
+              class="space-y-4"
+              onsubmit="
+                event.preventDefault();
+                switchViewMode('queue');
+              "
+            >
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="block text-xs font-bold text-slate-500 uppercase mb-1"
+                    >Full Name *</label
+                  >
+                  <input
+                    type="text"
+                    required
+                    class="w-full bg-slate-50 border border-slate-200 h-12 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-bold text-slate-500 uppercase mb-1"
+                    >Date of Birth *</label
+                  >
+                  <input
+                    type="date"
+                    required
+                    class="w-full bg-slate-50 border border-slate-200 h-12 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                  />
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="block text-xs font-bold text-slate-500 uppercase mb-1"
+                    >Phone Number</label
+                  >
+                  <input
+                    type="tel"
+                    inputmode="tel"
+                    class="w-full bg-slate-50 border border-slate-200 h-12 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-bold text-slate-500 uppercase mb-1"
+                    >Acuity Level (Triage)</label
+                  >
+                  <select
+                    class="w-full bg-slate-50 border border-slate-200 h-12 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all font-medium"
+                  >
+                    <option>ESI 4 - Less Urgent (Green)</option>
+                    <option>ESI 3 - Urgent (Yellow)</option>
+                    <option>ESI 2 - High Urgent (Orange)</option>
+                    <option>ESI 1 - Resuscitation (Red)</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-500 uppercase mb-1"
+                  >Chief Complaint *</label
+                >
+                <textarea
+                  required
+                  rows="3"
+                  placeholder="Primary physical indicators..."
+                  class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                ></textarea>
+              </div>
+              <button
+                type="submit"
+                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 rounded-xl shadow-sm transition-colors flex items-center justify-center space-x-2"
+              >
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Complete Intake & Add to Queue</span>
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- UNIVERSAL COMPONENT PANEL: Right side desktop pane / Mobile bottom drawer -->
+        <div
+          id="action-drawer"
+          class="fixed inset-x-0 bottom-0 md:relative md:inset-auto md:flex-1 bg-white shadow-2xl md:shadow-none border-t border-slate-200 md:border-t-0 z-30 transform translate-y-full md:translate-y-0 mobile-drawer-transition max-h-[90vh] md:max-h-full flex flex-col overflow-hidden"
+        >
+          <!-- Drawer Handlebar: Only useful/visible on Mobile touch screens -->
+          <div
+            onclick="closeMobileDrawer()"
+            class="w-full py-3 flex justify-center items-center cursor-pointer border-b border-slate-100 flex-shrink-0 md:hidden"
+          >
+            <div class="w-12 h-1.5 bg-slate-300 rounded-full"></div>
+          </div>
+
+          <!-- High-Density Clinical Workspace Header -->
+          <div
+            class="p-4 border-b border-slate-100 flex justify-between items-start flex-shrink-0 bg-slate-50/50"
+          >
+            <div>
+              <h3
+                id="panel-patient-name"
+                class="text-lg md:text-xl font-bold text-slate-900"
+              >
+                John Doe
+              </h3>
+              <p
+                id="panel-patient-status"
+                class="text-xs font-semibold text-rose-600 flex items-center mt-0.5"
+              >
+                <span
+                  class="h-2 w-2 bg-rose-500 rounded-full inline-block mr-1.5 animate-pulse"
+                ></span>
+                ESI 2 - High Urgent • "Severe Chest Pain"
+              </p>
+            </div>
+            <button
+              onclick="closeMobileDrawer()"
+              class="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full flex items-center justify-center transition-colors md:hidden"
+            >
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
+
+          <!-- Core Work Area Scrollable Pane -->
+          <div
+            class="overflow-y-auto p-4 md:p-5 space-y-5 no-scrollbar flex-1 pb-12"
+          >
+            <!-- Safety Guardrail Banner -->
+            <div
+              class="bg-amber-50 border-l-4 border-amber-500 p-3 rounded-r-xl flex items-start space-x-2.5"
+            >
+              <i
+                class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5"
+              ></i>
+              <div>
+                <h4 class="text-xs font-bold text-amber-900 uppercase">
+                  Allergy & Risk Directives
+                </h4>
+                <p
+                  id="panel-patient-risks"
+                  class="text-xs text-amber-700 font-medium"
+                >
+                  Allergies: Penicillin. High Fall Risk.
+                </p>
+              </div>
+            </div>
+
+            <!-- Grid Module A: Touch/Numeric Vitals Engine -->
+            <div class="space-y-3">
+              <h4
+                class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center"
+              >
+                <i class="fa-solid fa-heart-pulse mr-1.5 text-rose-500"></i>
+                Vital Signs Entry
+              </h4>
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                  <span class="block text-xs font-bold text-slate-500 mb-1"
+                    >BP (mmHg)</span
+                  >
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="120/80"
+                    class="w-full bg-white border border-slate-200 rounded-lg h-10 text-center font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                  <span class="block text-xs font-bold text-slate-500 mb-1"
+                    >Pulse (BPM)</span
+                  >
+                  <input
+                    type="number"
+                    inputmode="numeric"
+                    placeholder="72"
+                    class="w-full bg-white border border-slate-200 rounded-lg h-10 text-center font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                  <span class="block text-xs font-bold text-slate-500 mb-1"
+                    >Temp (°C)</span
+                  >
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    placeholder="36.8"
+                    class="w-full bg-white border border-slate-200 rounded-lg h-10 text-center font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                  <span class="block text-xs font-bold text-slate-500 mb-1"
+                    >SpO2 (%)</span
+                  >
+                  <input
+                    type="number"
+                    inputmode="numeric"
+                    placeholder="98"
+                    class="w-full bg-white border border-slate-200 rounded-lg h-10 text-center font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Grid Module B: Treatment Logs -->
+            <div class="space-y-3">
+              <h4
+                class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center"
+              >
+                <i class="fa-solid fa-capsules mr-1.5 text-emerald-600"></i>
+                Standing Orders & Med Administration
+              </h4>
+              <div class="space-y-2">
+                <div
+                  class="flex items-center justify-between p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl"
+                >
+                  <div class="flex items-start space-x-2.5">
+                    <i class="fa-solid fa-syringe text-emerald-600 mt-1"></i>
+                    <div>
+                      <p class="text-sm font-bold text-slate-800">
+                        Ketorolac 30mg IV
+                      </p>
+                      <p class="text-[11px] text-slate-400">
+                        Dr. House • Ordered 10m ago
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onclick="markAdministered(this)"
+                    class="h-9 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition-colors shadow-sm"
+                  >
+                    Administer
+                  </button>
+                </div>
+
+                <div
+                  class="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl"
+                >
+                  <div class="flex items-start space-x-2.5">
+                    <i class="fa-solid fa-kit-medical text-slate-500 mt-1"></i>
+                    <div>
+                      <p class="text-sm font-semibold text-slate-700">
+                        Apply Splint & Cold Compress
+                      </p>
+                      <p class="text-[11px] text-slate-400">
+                        Dr. House • Stat Order
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onclick="markAdministered(this)"
+                    class="h-9 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition-colors shadow-sm"
+                  >
+                    Administer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions Sticky Sub-Footer Pane -->
+          <div
+            class="p-4 border-t border-slate-100 bg-white grid grid-cols-2 gap-3 flex-shrink-0"
+          >
+            <button
+              onclick="closeMobileDrawer()"
+              class="h-12 border border-slate-200 hover:bg-slate-50 font-bold text-sm text-slate-600 rounded-xl transition-colors"
+            >
+              Save Vitals
+            </button>
+            <button
+              onclick="closeMobileDrawer()"
+              class="h-12 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl transition-colors shadow-sm"
+            >
+              Complete Flow
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BACKGROUND DIMMER OVERLAY (Mobile UI state lock only) -->
+    <div
+      id="drawer-overlay"
+      onclick="closeMobileDrawer()"
+      class="fixed inset-0 bg-slate-900/40 z-20 hidden opacity-0 transition-opacity duration-300 md:hidden"
+    ></div>
+
+    <!-- INTERACTION LOGIC ARCHITECTURE -->
+    <script>
+      let currentActiveTab = "queue";
+
+      function switchViewMode(targetTab) {
+        currentActiveTab = targetTab;
+        const pQueue = document.getElementById("pane-queue");
+        const pRegister = document.getElementById("pane-register");
+        const pWorkspace = document.getElementById("action-drawer");
+
+        // DOM buttons selectors
+        const mBtnQ = document.getElementById("mob-btn-queue");
+        const mBtnR = document.getElementById("mob-btn-register");
+        const sBtnQ = document.getElementById("side-btn-queue");
+        const sBtnR = document.getElementById("side-btn-register");
+
+        if (targetTab === "queue") {
+          pQueue.classList.remove("hidden");
+          pRegister.classList.add("hidden");
+          if (window.innerWidth >= 768)
+            pWorkspace.classList.remove("md:hidden");
+
+          // Mobile Navigation Classes
+          mBtnQ.className =
+            "flex-1 py-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-600 flex flex-col items-center space-y-0.5";
+          mBtnR.className =
+            "flex-1 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 flex flex-col items-center space-y-0.5";
+
+          // Desktop Sidebar Classes
+          sBtnQ.className =
+            "w-full flex items-center justify-center lg:justify-start space-x-3 px-3 py-3 rounded-xl bg-emerald-50 text-emerald-600 font-bold transition-all";
+          sBtnR.className =
+            "w-full flex items-center justify-center lg:justify-start space-x-3 px-3 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-semibold transition-all";
+        } else {
+          pQueue.classList.add("hidden");
+          pRegister.classList.remove("hidden");
+          pWorkspace.classList.add("md:hidden"); // Hide details frame to favor intake form surface on PC
+
+          mBtnQ.className =
+            "flex-1 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 flex flex-col items-center space-y-0.5";
+          mBtnR.className =
+            "flex-1 py-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-600 flex flex-col items-center space-y-0.5";
+
+          sBtnQ.className =
+            "w-full flex items-center justify-center lg:justify-start space-x-3 px-3 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-semibold transition-all";
+          sBtnR.className =
+            "w-full flex items-center justify-center lg:justify-start space-x-3 px-3 py-3 rounded-xl bg-emerald-50 text-emerald-600 font-bold transition-all";
+        }
+      }
+
+      function selectPatient(name, statusInfo, complaint, riskFlags) {
+        // Re-render strings dynamically
+        document.getElementById("panel-patient-name").innerText = name;
+        document.getElementById("panel-patient-status").innerHTML =
+          `<span class="h-2 w-2 ${statusInfo.includes("ESI 2") ? "bg-rose-500" : "bg-amber-500"} rounded-full inline-block mr-1.5 animate-pulse"></span> ${statusInfo} • "${complaint}"`;
+        document.getElementById("panel-patient-risks").innerText = riskFlags;
+
+        // Manage visible state across viewport breaks
+        if (window.innerWidth < 768) {
+          const drawer = document.getElementById("action-drawer");
+          const overlay = document.getElementById("drawer-overlay");
+          overlay.classList.remove("hidden");
+          setTimeout(() => {
+            overlay.classList.add("opacity-100");
+            drawer.classList.remove("translate-y-full");
+          }, 10);
+        } else {
+          // Style Active Card Highlight on Desktop
+          const cards = document.querySelectorAll(".patient-card");
+          cards.forEach((card) =>
+            card.classList.remove(
+              "bg-emerald-50/40",
+              "border-emerald-500",
+              "shadow-md",
+            ),
+          );
+          event.currentTarget.classList.add(
+            "bg-emerald-50/40",
+            "border-emerald-500",
+            "shadow-md",
+          );
+        }
+      }
+
+      function closeMobileDrawer() {
+        if (window.innerWidth < 768) {
+          const drawer = document.getElementById("action-drawer");
+          const overlay = document.getElementById("drawer-overlay");
+          drawer.classList.add("translate-y-full");
+          overlay.classList.remove("opacity-100");
+          setTimeout(() => overlay.classList.add("hidden"), 300);
+        }
+      }
+
+      function markAdministered(btn) {
+        btn.className =
+          "h-9 px-3 bg-slate-100 text-slate-400 font-bold text-xs rounded-lg cursor-not-allowed";
+        btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Done';
+        btn.disabled = true;
+      }
+
+      // Handle structural layout resizing without breaking view states
+      window.addEventListener("resize", () => {
+        const workspace = document.getElementById("action-drawer");
+        if (window.innerWidth >= 768) {
+          workspace.classList.remove("translate-y-full");
+          if (currentActiveTab === "register")
+            workspace.classList.add("md:hidden");
+        } else {
+          if (
+            !document
+              .getElementById("drawer-overlay")
+              .classList.contains("hidden")
+          ) {
+            workspace.classList.remove("translate-y-full");
+          } else {
+            workspace.classList.add("translate-y-full");
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
