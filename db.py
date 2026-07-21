@@ -48,6 +48,7 @@ class Group(db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     invite_code = db.Column(db.String(20), nullable=False, unique=True)
     group_name = db.Column(db.String(100), nullable=True)
+    password_hash = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Cascade configuration rules
@@ -88,6 +89,18 @@ class TemporaryDrop(db.Model):
     __table_args__ = (
         db.UniqueConstraint('group_id', 'user_id', name='uq_group_user_drop'),
     )
+
+    @property
+    def formatted_size(self):
+        if not self.file_size:
+            return "-- MB"
+            
+        size = float(self.file_size)
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if size < 1024.0:
+                return f"{size:.1f} {unit}"
+            size /= 1024.0
+        return f"{size:.1f} TB"
 
 
 # ============================================================

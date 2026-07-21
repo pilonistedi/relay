@@ -97,3 +97,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+function togglePasswordField() {
+  const securitySelect = document.getElementById("securityEngineSelect");
+  const passwordContainer = document.getElementById("passwordContainer");
+  const passwordInput = document.getElementById("groupPasswordInput");
+
+  if (!securitySelect || !passwordContainer || !passwordInput) return;
+
+  if (securitySelect.value === "secure") {
+    // Show password field
+    passwordContainer.classList.remove("hidden");
+    passwordInput.required = true;
+  } else {
+    // Hide password field & reset input value
+    passwordContainer.classList.add("hidden");
+    passwordInput.required = false;
+    passwordInput.value = "";
+  }
+}
+
+// Ensure the initial state is synchronized on page load
+document.addEventListener("DOMContentLoaded", () => {
+  togglePasswordField();
+});

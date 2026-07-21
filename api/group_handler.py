@@ -79,6 +79,7 @@ def create_group():
     security_engine = request.form.get("security_engine", "Open Hub Access")
     lifespan = request.form.get("lifespan", "45") 
     description = request.form.get("description", "")
+    group_password = request.form.get("group_password")
     
     # Capture the active palette choice from the hidden input field
     selected_palette_class = request.form.get("selected_palette", "bg-blue-50/60")
@@ -86,13 +87,16 @@ def create_group():
     if theme_key not in THEME_MAP:
         theme_key = 'blue'
 
+    password_hash = generate_password_hash(group_password) if group_password else None
+
     # 2. Build the Core Group Entity Row
     invite_code = generate_invite_code()
     new_group = Group(
         creator_id=creator_id,
         invite_code=invite_code,
         group_name=group_name,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
+        password_hash=password_hash
     )
     
     try:
@@ -157,23 +161,56 @@ def create_group():
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
 
-@group_handler_bp.route("/group/<int:group_id>")
+@group_handler_bp.route("/group/<int:group_id>", methods=["GET", "POST"])
 def group(group_id):
     # 1. Enforce Authentication Guard
     user_id = session.get('user_id')
     if not user_id:
         return redirect(url_for('auth'))
 
-    # 2. Fetch the group or return a 404 if it doesn't exist
+    # 2. Fetch the group or return 404
     group = Group.query.get_or_404(group_id)
 
-    # 3. Retrieve all configuration rows for this specific workspace
-    config_rows = GroupConfig.query.filter_by(group_id=group.id).all()
+    # --- PASSWORD & LOCK LOGIC ---
+    # Create a session key unique to this group & user
+    unlocked_session_key = f"unlocked_group_{group.id}"
+    
+    # 3. Handle POST Request (Password submission from the lock screen)
+    if request.method == "POST":
+        submitted_password = request.form.get("password", "")
+        
+        if group.password_hash and check_password_hash(group.password_hash, submitted_password):
+            # Password correct -> Save unlocked status in session
+            session[unlocked_session_key] = True
+            return redirect(url_for('group_handler_bp.group', group_id=group.id))
+        else:
+            # Password incorrect -> Re-render page with error/locked state
+            # (Optionally flash a message or pass an error flag)
+            return render_template(
+                "group.html", 
+                settings=get_group_settings_dict(group), 
+                group=group, 
+                drops=[], 
+                is_creator=False, 
+                group_id=group_id, 
+                is_locked=True, 
+                creator_name="Protected Workspace",
+                password_error="Invalid password. Please try again."
+            )
 
-    # 4. Collapse the EAV (Entity-Attribute-Value) rows into a clean dictionary
+    # 4. Handle GET Request (Determine if workspace is locked)
+    is_locked = False
+    
+    # Check if group has a password and user hasn't unlocked it yet
+    if group.password_hash and not session.get(unlocked_session_key):
+        # Allow creator to bypass lock automatically (Optional, remove if creator must also enter password)
+        if group.creator_id != user_id:
+            is_locked = True
+
+    # 5. Retrieve configurations and render template
+    config_rows = GroupConfig.query.filter_by(group_id=group.id).all()
     settings = {row.setting_key: row.setting_value for row in config_rows}
 
-    # 5. Inject baseline safe fallbacks if configuration records are absent
     defaults = {
         'group_name': group.group_name or 'Unnamed Hub',
         'security_engine': 'Open Hub Access',
@@ -181,15 +218,11 @@ def group(group_id):
         'description': '',
         'identity_icon': '🚀',
         'theme_color_key': 'sky', 
-        
-        # Comprehensive theme mapping injected into templates
         'theme_hover_border': 'hover:border-sky-500/40',
         'theme_glow_shadow': 'hover:shadow-[0_0_25px_rgba(59,130,246,0.12)]',
         'theme_badge_text': 'text-sky-400',
         'theme_badge_bg': 'bg-sky-500/20 border-sky-500/20',
         'theme_btn_bg': 'bg-sky-500 hover:bg-sky-400 text-neutral-950',
-        
-        # New structural additions to isolate custom styles for dynamic UI elements
         'theme_accent_text': 'text-sky-400',
         'theme_accent_border': 'border-sky-500/20',
         'theme_interactive_bg': 'bg-sky-600/10 hover:bg-sky-600/20',
@@ -197,7 +230,6 @@ def group(group_id):
         'theme_interactive_hover_text': 'hover:text-sky-300 group-hover:text-sky-400',
         'theme_focus_ring': 'focus:border-sky-500 focus:ring-sky-500/10 focus:ring-2',
         'theme_selection': 'selection:bg-sky-500 selection:text-neutral-950',
-        
         'backdrop_filename': 'default_backdrop.jpg' 
     }
 
@@ -205,7 +237,6 @@ def group(group_id):
         if key not in settings or not settings[key]:
             settings[key] = default_value
 
-    # Process gradients natively
     if 'theme_color_key' in settings and settings['theme_color_key'] in THEME_MAP:
         color = settings['theme_color_key']
         settings['theme_color_gradient'] = f"from-{color}-500 to-{color}-600"
@@ -214,20 +245,23 @@ def group(group_id):
         settings['theme_color_gradient'] = "from-sky-500 to-indigo-600"
         settings['theme_pulse_dot'] = "bg-sky-500"
 
-    current_user_id = session.get('user_id')
-
-    is_creator = False
-    if current_user_id and hasattr(group, 'creator_id'):
-        is_creator = (group.creator_id == current_user_id)
-    elif current_user_id and hasattr(group, 'user_id'):
-        is_creator = (group.user_id == current_user_id)
+    is_creator = (group.creator_id == user_id)
+    creator_user = User.query.get(group.creator_id)
+    creator_name = creator_user.display_username if creator_user else "Unknown Creator"
 
     drops = TemporaryDrop.query.filter_by(group_id=group_id).order_by(TemporaryDrop.created_at.desc()).all()
 
-    # 6. Render the workspace template passing down the compiled settings
-    is_locked = False
-    return render_template("group.html", settings=settings, group=group, drops=drops, is_creator=is_creator, group_id=group_id, is_locked=is_locked)
-
+    return render_template(
+        "group.html", 
+        settings=settings, 
+        group=group, 
+        drops=drops, 
+        is_creator=is_creator, 
+        group_id=group_id, 
+        is_locked=is_locked, 
+        creator_name=creator_name
+    )
+    
 @group_handler_bp.route('/join/<int:group_id>', methods=['POST'])
 def join_group(group_id):
     pass

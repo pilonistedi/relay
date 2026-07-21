@@ -93,7 +93,5 @@ def auth():
 
 @auth_bp.route("/logout")
 def logout():
-    session.pop('user_id', None)
-    session.pop('display_username', None)
-    session.pop('profile_icon', None)
+    session.clear()
     return redirect(url_for('index'))

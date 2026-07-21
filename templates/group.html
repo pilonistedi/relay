@@ -68,7 +68,7 @@
             <span
               class="text-[8px] sm:text-[9px] font-mono {{ settings.theme_badge_bg }} {{ settings.theme_badge_text }} px-1.5 py-0.5 rounded backdrop-blur-sm shrink-0"
             >
-              Creator: Max
+              Creator: {{creator_name}}
             </span>
           </div>
           <p
@@ -180,23 +180,31 @@
               </span>
             </div>
 
-            <div class="flex-1 flex flex-col justify-center my-4 min-w-0">
+            <div class="flex-1 flex flex-col justify-center items-center my-4 min-w-0">
+              <!-- Original File Name -->
               <h3
-                class="text-sm font-semibold text-neutral-100 truncate drop-shadow-md text-center"
+                class="w-full text-sm font-semibold text-neutral-100 truncate drop-shadow-md text-center px-1"
                 title="{{ drop.original_name }}"
               >
-                <!-- Displays the uploaded file's original name -->
                 {{ drop.original_name }}
               </h3>
-              <p
-                class="text-[11px] text-neutral-400 mt-1 truncate drop-shadow-sm text-center"
-              >
-                by
+
+              <!-- Meta Details: Uploader & File Size -->
+              <p class="w-full text-[11px] text-neutral-400 mt-1 truncate drop-shadow-sm text-center flex items-center justify-center gap-1.5 px-1">
+                <span>by</span>
                 <span
-                  class="text-neutral-200 font-medium {{ settings.theme_interactive_hover_text }} transition-colors duration-150 cursor-pointer"
+                  class="text-neutral-200 font-medium {{ settings.theme_interactive_hover_text }} transition-colors duration-150 cursor-pointer truncate max-w-[120px]"
+                  title="{{ drop.user.display_username if drop.user else 'Anonymous' }}"
                 >
-                  <!-- Displays the custom display name of the uploader -->
                   {{ drop.user.display_username if drop.user else "Anonymous" }}
+                </span>
+
+                <!-- Separator Dot -->
+                <span class="text-neutral-600 font-bold">•</span>
+
+                <!-- Displays file size directly from drop object -->
+                <span class="text-neutral-300 font-medium">
+                  {{ drop.formatted_size if drop.file_size else "-- MB" }}
                 </span>
               </p>
             </div>
@@ -398,7 +406,7 @@
         <p class="mt-1 text-xs text-neutral-400">Please enter the password to access this workspace.</p>
         
         <!-- Password Form -->
-        <form class="mt-6 flex flex-col gap-3" method="POST" action="">
+        <form class="mt-6 flex flex-col gap-3" method="POST" action="{{ url_for('group_handler_bp.group', group_id=group.id) }}">
           <input 
             type="password" 
             name="password"
@@ -425,30 +433,38 @@
       id="adminModal"
       class="hidden fixed inset-0 bg-neutral-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onclick="handleBackdropClick(event, 'adminModal')"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="adminModalTitle"
     >
       <div
-        class="bg-neutral-900 border border-neutral-800 rounded-xl w-full max-w-sm p-5 shadow-2xl"
+        class="bg-neutral-900 border border-neutral-800 rounded-xl w-full max-w-sm p-5 shadow-2xl overflow-hidden"
         onclick="event.stopPropagation()"
       >
-        <div
-          class="flex justify-between items-center border-b border-neutral-800 pb-3 mb-4"
-        >
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b border-neutral-800 pb-3 mb-4">
           <h3
+            id="adminModalTitle"
             class="text-neutral-200 font-semibold text-sm flex items-center gap-1.5"
           >
             <i class="fa-solid fa-gear {{ settings.theme_badge_text }} text-xs"></i>
             System Configuration
           </h3>
           <button
-            class="text-neutral-500 hover:text-neutral-300 transition text-sm font-medium"
+            type="button"
+            class="text-neutral-500 hover:text-neutral-300 transition text-sm font-medium focus:outline-none"
             onclick="toggleModal('adminModal')"
+            aria-label="Close modal"
           >
             Close
           </button>
         </div>
+
+        <!-- Body Content -->
         <div class="space-y-4">
           <div>
             <label
+              for="lifespanInput"
               class="block text-[10px] font-bold uppercase text-neutral-400 mb-1.5 tracking-wider"
             >
               Default Lifespan (Minutes)
@@ -460,9 +476,24 @@
               class="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-white text-sm focus:outline-none {{ settings.theme_focus_ring }} transition"
             />
           </div>
+
+          <!-- Destructive Action Styled -->
+          <div class="pt-2 border-t border-neutral-800/60">
+            <button
+              type="button"
+              class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-2"
+              onclick="nukeGroup()"
+            >
+              <span>Nuke Group</span>
+              <i class="fa-solid fa-bomb text-xs"></i>
+            </button>
+          </div>
         </div>
+
+        <!-- Modal Footer Actions -->
         <button
-          class="w-full {{ settings.theme_btn_bg }} font-semibold py-2.5 rounded-lg text-xs uppercase tracking-wider transition mt-5 shadow-md"
+          type="button"
+          class="w-full {{ settings.theme_btn_bg }} font-semibold py-2.5 rounded-lg text-xs uppercase tracking-wider transition mt-5 shadow-md focus:outline-none"
           onclick="saveSystemConfig()"
         >
           Save Configuration
