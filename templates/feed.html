@@ -140,11 +140,11 @@
       <main
         class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0 md:overflow-hidden"
       >
-        <!-- ENGINE NEXUS (7 Cols) -->
+        <!-- Main Panel -->
         <section
           class="md:col-span-7 flex flex-col bg-white dark:bg-neutral-900/90 border border-neutral-200/90 dark:border-neutral-800/80 rounded-xl p-4 md:overflow-hidden shadow-sm shrink-0 md:shrink"
         >
-          <!-- Toggle Tabs -->
+          <!-- Navigation Tabs -->
           <div class="flex flex-wrap items-center gap-3 border-b border-neutral-200/80 dark:border-neutral-800 pb-3 mb-3 shrink-0 text-xs font-bold uppercase tracking-wider">
             <!-- Tabs -->
             <div class="flex items-center gap-4">
@@ -153,14 +153,14 @@
                 onclick="toggleNexus('search')"
                 class="text-neutral-900 dark:text-neutral-100 border-b-2 border-sky-500 pb-1 flex items-center gap-1.5 transition"
               >
-                <i class="fa-solid fa-magnifying-glass text-sky-500"></i> Find Circles
+                <i class="fa-solid fa-magnifying-glass text-sky-500"></i> Browse Groups
               </button>
               <button
                 id="tabCreate"
                 onclick="toggleNexus('create')"
                 class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 pb-1 flex items-center gap-1.5 transition"
               >
-                <i class="fa-solid fa-square-plus"></i> Initialize
+                <i class="fa-solid fa-square-plus"></i> Start New
               </button>
             </div>
 
@@ -187,7 +187,7 @@
             </form>
           </div>
 
-          <!-- STATE A: Pure Search Portal -->
+          <!-- Browse Groups Panel -->
           <div id="nexusSearchArea" class="flex-1 flex flex-col min-h-0 relative">
             <div class="relative shrink-0 mb-3">
               <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-[11px] text-neutral-400 dark:text-neutral-500"></i>
@@ -197,7 +197,7 @@
                 id="groupSearchInput"
                 type="text"
                 autocomplete="off"
-                placeholder="Type keyword or group name..."
+                placeholder="Search by name or keyword..."
                 class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition placeholder-neutral-400 dark:placeholder-neutral-500"
               />
 
@@ -214,7 +214,7 @@
             </div>
           </div>
 
-          <!-- STATE B: Ultra-Compact Setup deck -->
+          <!-- Create New Group Panel -->
           <form
             id="nexusCreateArea"
             class="hidden flex-1 flex flex-col justify-between min-h-0"
@@ -230,21 +230,21 @@
                   <input
                     type="text"
                     name="group_name"
-                    placeholder="Identity string..."
+                    placeholder="What's your group called?"
                     class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg p-1.5 text-xs text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition"
                     required
                   />
                 </div>
                 <div>
-                  <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Security Engine</label>
+                  <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Privacy</label>
                   <select
                     id="securityEngineSelect"
                     name="security_engine"
                     onchange="togglePasswordField()"
                     class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg p-1.5 text-xs text-neutral-800 dark:text-neutral-200 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition"
                   >
-                    <option value="open">Open Hub Access</option>
-                    <option value="secure">Secure / Encrypted</option>
+                    <option value="open">Public — Anyone can join</option>
+                    <option value="secure">Private — Password required</option>
                   </select>
                 </div>
               </div>
@@ -255,12 +255,12 @@
                     id="groupPasswordInput"
                     type="password"
                     name="group_password"
-                    placeholder="************"
+                    placeholder="Create a password"
                     class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg p-1.5 text-xs text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition"
                   />
                 </div>
                 <div>
-                  <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Lifespan</label>
+                  <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Expires After</label>
                   <select
                     name="lifespan"
                     class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg p-1.5 text-xs text-neutral-800 dark:text-neutral-200 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition"
@@ -275,7 +275,7 @@
               </div>
 
               <div class="space-y-1.5">
-                <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-wider">Canvas Layout Engine</label>
+                <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-wider">Appearance</label>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div id="ctxImage" class="bg-neutral-50 dark:bg-neutral-950 p-2 rounded-lg border border-neutral-200 dark:border-neutral-800 text-center flex items-center justify-center min-h-[40px]">
@@ -288,7 +288,7 @@
                     />
                     <label for="bgImgFile" class="text-[10px] text-neutral-600 dark:text-neutral-400 cursor-pointer hover:text-sky-500 font-medium w-full">
                       <i class="fa-solid fa-cloud-arrow-up mr-1 text-sky-500"></i>
-                      <span id="lblImg">Upload Backdrop Spec</span>
+                      <span id="lblImg">Upload backdrop image</span>
                     </label>
                   </div>
 
@@ -304,11 +304,11 @@
               </div>
 
               <div>
-                <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Description Blueprint</label>
+                <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Description</label>
                 <textarea
                   rows="2"
                   name="description"
-                  placeholder="Manifesto context..."
+                  placeholder="Tell people what this group is about..."
                   class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg p-2 text-xs text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition resize-none placeholder-neutral-400 dark:placeholder-neutral-500"
                 ></textarea>
               </div>
@@ -318,12 +318,12 @@
               type="submit"
               class="w-full bg-neutral-900 dark:bg-sky-600 hover:bg-neutral-800 dark:hover:bg-sky-500 active:bg-neutral-950 text-white font-semibold py-2 rounded-lg text-[10px] uppercase tracking-wider transition mt-3 shrink-0 shadow-sm"
             >
-              Launch Live Group
+              Create Group
             </button>
           </form>
         </section>
 
-        <!-- COLUMN 2: History & Overlap Recommendations (5 Cols) -->
+        <!-- Side Panel: Groups You Might Like -->
         <section
           class="md:col-span-5 flex flex-col bg-white dark:bg-neutral-900/90 border border-neutral-200/90 dark:border-neutral-800/80 rounded-xl p-4 md:overflow-hidden shadow-sm shrink-0 md:shrink"
         >
@@ -331,62 +331,92 @@
             <h3
               class="text-xs font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-wider flex items-center gap-1.5"
             >
-              <i class="fa-solid fa-network-wired text-sky-500"></i> Suggested Connections
+              <i class="fa-solid fa-network-wired text-sky-500"></i> Suggested Groups
             </h3>
           </div>
 
-          <div class="flex-1 md:overflow-y-auto space-y-2 pr-0.5">
-          {% set has_starred = false %}
-          
-          {% for group in groups %}
-            {% if group.is_starred %}
-              {% set has_starred = true %}
-              <a href="{{ url_for('group_handler_bp.group', group_id=group.id) }}" class="block">
-                <div
-                  class="group border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/40 hover:bg-white dark:hover:bg-neutral-800 hover:border-sky-500/50 dark:hover:border-sky-500/40 p-2.5 rounded-lg transition-all cursor-pointer flex justify-between items-center"
-                >
-                  <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-7 h-7 bg-neutral-100 dark:bg-neutral-800 rounded-md flex items-center justify-center text-sm shrink-0 border border-neutral-200 dark:border-neutral-700">
-                      {{ group.settings.identity_icon }}
+          <div class="flex-1 md:overflow-y-auto space-y-3 pr-0.5">
+
+            <!-- Optional Section Header for Pinned Groups -->
+            {% set starred_groups = groups | selectattr('is_starred') | list %}
+            {% set unstarred_groups = groups | rejectattr('is_starred') | list %}
+
+            {% if starred_groups %}
+              <div class="text-[10px] font-bold uppercase tracking-wider text-amber-500/80 px-1 pt-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-star text-[9px]"></i>
+                <span>Pinned Favorites</span>
+              </div>
+
+              {% for group in starred_groups %}
+                <a href="{{ url_for('group_handler_bp.group', group_id=group.id) }}" class="block">
+                  <div class="group border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 p-2.5 rounded-lg transition-all cursor-pointer flex justify-between items-center shadow-sm">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <div class="w-7 h-7 bg-amber-500/10 rounded-md flex items-center justify-center text-sm shrink-0 border border-amber-500/20">
+                        {{ group.settings.identity_icon }}
+                      </div>
+                      
+                      <div class="min-w-0">
+                        <h4 class="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate group-hover:text-amber-400 transition-colors">
+                          {{ group.group_name }} <span class="font-normal text-neutral-500 dark:text-neutral-400">by {{ group.creator_name }}</span>
+                        </h4>
+                        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+                          Minimal interface design discussions.
+                        </p>
+                      </div>
                     </div>
                     
-                    <div class="min-w-0">
-                      <h4 class="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-                        {{ group.group_name }} <span class="font-normal text-neutral-500 dark:text-neutral-400">by {{ group.creator_name }}</span>
-                      </h4>
-                      <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
-                        Exploring minimal interface layout parameters.
-                      </p>
+                    <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                      <span class="text-amber-400 text-xs px-1">
+                        <i class="fa-solid fa-star"></i>
+                      </span>
+                      <span class="text-[9px] font-mono bg-white dark:bg-neutral-950 text-neutral-600 dark:text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-800">
+                        {{ group.settings.security_engine }}
+                      </span>
                     </div>
                   </div>
-                  
-                  <div class="flex items-center gap-1.5 shrink-0 ml-2">
-                    <span class="text-amber-400 text-xs px-1" title="Pinned Group">
-                      <i class="fa-solid fa-star"></i>
-                    </span>
+                </a>
+              {% endfor %}
+            {% endif %}
 
-                    <span
-                      class="text-[9px] font-mono bg-white dark:bg-neutral-950 text-neutral-600 dark:text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-800 shrink-0"
-                    >
+            <!-- Unstarred / All Other Groups -->
+            {% if unstarred_groups %}
+              {% if starred_groups %}
+                <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 px-1 pt-2">
+                  <span>More Groups</span>
+                </div>
+              {% endif %}
+
+              {% for group in unstarred_groups %}
+                <a href="{{ url_for('group_handler_bp.group', group_id=group.id) }}" class="block">
+                  <div class="group border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/40 hover:bg-white dark:hover:bg-neutral-800 hover:border-sky-500/50 dark:hover:border-sky-500/40 p-2.5 rounded-lg transition-all cursor-pointer flex justify-between items-center">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <div class="w-7 h-7 bg-neutral-100 dark:bg-neutral-800 rounded-md flex items-center justify-center text-sm shrink-0 border border-neutral-200 dark:border-neutral-700">
+                        {{ group.settings.identity_icon }}
+                      </div>
+                      
+                      <div class="min-w-0">
+                        <h4 class="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+                          {{ group.group_name }} <span class="font-normal text-neutral-500 dark:text-neutral-400">by {{ group.creator_name }}</span>
+                        </h4>
+                        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+                          Minimal interface design discussions.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <span class="text-[9px] font-mono bg-white dark:bg-neutral-950 text-neutral-600 dark:text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-800 shrink-0 ml-2">
                       {{ group.settings.security_engine }}
                     </span>
                   </div>
-                </div>
-              </a>
+                </a>
+              {% endfor %}
             {% endif %}
-          {% endfor %}
 
-          <!-- Fallback state if the user hasn't starred any groups yet -->
-          {% if not groups|selectattr('is_starred')|list %}
-            <div class="text-center py-6 text-xs text-neutral-500 italic">
-              No starred groups yet. Star a workspace from its navbar to pin it here!
-            </div>
-          {% endif %}
-        </div>
+          </div>
         </section>
       </main>
 
-      <!-- Brand Anchor Component Footer -->
+      <!-- Footer -->
       <footer class="mt-auto pt-1 flex justify-center shrink-0">
         <a
           href="https://critique-production.up.railway.app/critique_landing"
