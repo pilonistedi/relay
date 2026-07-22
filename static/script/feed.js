@@ -147,3 +147,94 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  // ... existing init code ...
+
+  const searchInput = document.getElementById("groupSearchInput");
+  const dropdown = document.getElementById("autocompleteDropdown");
+  const resultsContainer = document.getElementById("searchResultsContainer");
+
+  let debounceTimer = null;
+
+  if (searchInput && dropdown) {
+    searchInput.addEventListener("input", (e) => {
+      const query = e.target.value.trim();
+
+      clearTimeout(debounceTimer);
+
+      if (!query) {
+        dropdown.classList.add("hidden");
+        dropdown.innerHTML = "";
+        return;
+      }
+
+      // Debounce to prevent unnecessary fetch requests while typing
+      debounceTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/search_groups?q=${encodeURIComponent(query)}`);
+          const groups = await res.json();
+
+          if (groups.length === 0) {
+            dropdown.innerHTML = `
+              <div class="p-2 text-[11px] text-neutral-400 dark:text-neutral-500 text-center">
+                No matching groups found
+              </div>`;
+          } else {
+            dropdown.innerHTML = groups.map(g => `
+              <a 
+                href="/group/${g.id}" 
+                class="flex items-center gap-2 p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs transition border-b border-neutral-100 dark:border-neutral-800/50 last:border-0"
+              >
+                <span class="text-sm">${g.icon}</span>
+                <span class="font-medium text-neutral-800 dark:text-neutral-200">${g.group_name}</span>
+              </a>
+            `).join('');
+
+            // Optionally update the cards view underneath dynamically
+            updateSearchResultsCards(groups);
+          }
+
+          dropdown.classList.remove("hidden");
+        } catch (err) {
+          console.error("Search fetch error:", err);
+        }
+      }, 250);
+    });
+
+    // Close autocomplete when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.add("hidden");
+      }
+    });
+  }
+
+  function updateSearchResultsCards(groups) {
+    if (!resultsContainer) return;
+
+    if (groups.length === 0) {
+      resultsContainer.innerHTML = `
+        <div class="text-center py-6 text-xs text-neutral-400">
+          No groups match your search query.
+        </div>`;
+      return;
+    }
+
+    resultsContainer.innerHTML = groups.map(g => `
+      <a
+        class="block p-2.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-800/40 border border-neutral-200/80 dark:border-neutral-800 hover:border-sky-500/50 dark:hover:border-sky-500/40 hover:bg-white dark:hover:bg-neutral-800/70 transition-all text-xs group"
+        href="/group/${g.id}"
+      >
+        <div class="flex justify-between items-center">
+          <span class="font-bold text-neutral-900 dark:text-neutral-100 text-[11px] truncate group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+            ${g.icon} ${g.group_name}
+          </span>
+          <span class="text-[9px] text-sky-700 dark:text-sky-400 font-mono bg-sky-50 dark:bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-200/60 dark:border-sky-800/60 shrink-0 ml-2">
+            Active
+          </span>
+        </div>
+      </a>
+    `).join('');
+  }
+});

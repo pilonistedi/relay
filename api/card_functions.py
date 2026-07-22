@@ -1,49 +1,45 @@
 import os
+from datetime import datetime
 from flask import jsonify, session, current_app, Blueprint
 from db import db, TemporaryDrop, Group
 
-# Define the isolated authorization blueprint node
 card_functions_bp = Blueprint('card_functions_bp', __name__)
 
 @card_functions_bp.route("/group/<int:group_id>/drop/<int:drop_id>/delete", methods=["POST"])
 def delete_drop(group_id, drop_id):
-    # 1. Enforce Authentication Guard
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"error": "Unauthorized. Please log in first."}), 401
+    user_id = session.get('user_id') #[cite: 2]
+    
+    # Fetch the target drop[cite: 2]
+    drop = TemporaryDrop.query.filter_by(id=drop_id, group_id=group_id).first_or_404() #[cite: 2]
+    group = Group.query.get_or_404(group_id) #[cite: 2]
 
-    # 2. Fetch the target drop or return 404
-    drop = TemporaryDrop.query.filter_by(id=drop_id, group_id=group_id).first_or_404()
+    # Check if lifespan has genuinely expired
+    is_expired = drop.expires_at and datetime.utcnow() >= drop.expires_at
 
-    # 3. Security Policy Authorization Check
-    # A user can delete their own drop, OR the group creator can delete any drop in their group
-    group = Group.query.get_or_404(group_id)
-    is_owner = (drop.user_id == user_id)
-    is_group_creator = (group.creator_id == user_id)
+    # Authorization Check: User is owner, group creator, OR the drop is naturally expired[cite: 2]
+    is_owner = (user_id and drop.user_id == user_id) #[cite: 2]
+    is_group_creator = (user_id and group.creator_id == user_id) #[cite: 2]
 
-    if not (is_owner or is_group_creator):
-        return jsonify({"error": "Forbidden. You do not have permission to delete this drop."}), 403
+    if not (is_owner or is_group_creator or is_expired):
+        return jsonify({"error": "Forbidden. You do not have permission to delete this drop."}), 403 #[cite: 2]
 
-    # 4. Permanently Purge the Physical File from Local Storage
-    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], drop.stored_name)
-    if os.path.exists(file_path):
+    # Purge file system & database record[cite: 2]
+    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], drop.stored_name) #[cite: 2]
+    if os.path.exists(file_path): #[cite: 2]
         try:
-            os.remove(file_path)
+            os.remove(file_path) #[cite: 2]
         except OSError as e:
-            # Log the storage warning, but don't halt database cleanup if filesystem unlinking hits a snag
-            print(f"Filesystem unlinking warning: {e}")
+            print(f"Filesystem unlinking warning: {e}") #[cite: 2]
 
-    # 5. Remove the Row Record from the Database
     try:
-        db.session.delete(drop)
-        db.session.commit()
+        db.session.delete(drop) #[cite: 2]
+        db.session.commit() #[cite: 2]
     except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": f"Failed to drop database row reference: {str(e)}"}), 500
+        db.session.rollback() #[cite: 2]
+        return jsonify({"error": f"Failed to drop database row reference: {str(e)}"}), 500 #[cite: 2]
 
-    # 6. Dispatch Success Code back to AJAX Front-end UI
     return jsonify({
         "success": True,
-        "message": "Temporary drop deleted permanently.",
+        "message": "Temporary drop deleted permanently.", #[cite: 2]
         "drop_id": drop_id
     }), 200

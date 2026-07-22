@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session, redirect, url_for, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 import random
-from db import db, User, Group, GroupConfig, TemporaryDrop
+from db import db, User, Group, GroupConfig, TemporaryDrop, StarredGroup
 import string
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -10,6 +10,22 @@ from werkzeug.utils import secure_filename
 from flask import current_app
 # Manage Groups
 group_handler_bp = Blueprint('group_handler_bp', __name__)
+
+# Quick helper to invoke periodically or before loading grid views
+def cleanup_expired_drops():
+    now = datetime.utcnow()
+    expired_drops = TemporaryDrop.query.filter(TemporaryDrop.expires_at <= now).all()
+    
+    for drop in expired_drops:
+        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], drop.stored_name)
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except OSError:
+                pass
+        db.session.delete(drop)
+        
+    db.session.commit()
 
 # --- The Translated PHP Theme Map (Python Dictionary Variant) ---
 THEME_MAP = {
@@ -168,8 +184,12 @@ def group(group_id):
     if not user_id:
         return redirect(url_for('auth'))
 
+    cleanup_expired_drops()
+
     # 2. Fetch the group or return 404
     group = Group.query.get_or_404(group_id)
+
+    is_starred = StarredGroup.query.filter_by(user_id=user_id, group_id=group_id).first() is not None
 
     # --- PASSWORD & LOCK LOGIC ---
     # Create a session key unique to this group & user
@@ -259,7 +279,8 @@ def group(group_id):
         is_creator=is_creator, 
         group_id=group_id, 
         is_locked=is_locked, 
-        creator_name=creator_name
+        creator_name=creator_name,
+        is_starred=is_starred
     )
 
 @group_handler_bp.route("/join", methods=["POST"])
@@ -282,6 +303,20 @@ def join_by_invite(invite_code=None):
     # 3. Redirect seamlessly to the primary group workspace
     return redirect(url_for('group_handler_bp.group', group_id=group.id))
 
-@group_handler_bp.route('/join/<int:group_id>', methods=['POST'])
-def join_group(group_id):
-    pass
+@group_handler_bp.route('/api/toggle_star/<int:group_id>', methods=['POST'])
+def toggle_star(group_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    existing_star = StarredGroup.query.filter_by(user_id=user_id, group_id=group_id).first()
+
+    if existing_star:
+        db.session.delete(existing_star)
+        db.session.commit()
+        return jsonify({'success': True, 'starred': False})
+    else:
+        new_star = StarredGroup(user_id=user_id, group_id=group_id)
+        db.session.add(new_star)
+        db.session.commit()
+        return jsonify({'success': True, 'starred': True})

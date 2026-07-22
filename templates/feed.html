@@ -188,64 +188,29 @@
           </div>
 
           <!-- STATE A: Pure Search Portal -->
-          <div id="nexusSearchArea" class="flex-1 flex flex-col min-h-0">
+          <div id="nexusSearchArea" class="flex-1 flex flex-col min-h-0 relative">
             <div class="relative shrink-0 mb-3">
-              <i
-                class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-[11px] text-neutral-400 dark:text-neutral-500"
-              ></i>
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-[11px] text-neutral-400 dark:text-neutral-500"></i>
+              
+              <!-- Input given an ID and autocomplete turned off for native dropdowns -->
               <input
+                id="groupSearchInput"
                 type="text"
-                placeholder="Type keyword, tag, or past location..."
+                autocomplete="off"
+                placeholder="Type keyword or group name..."
                 class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition placeholder-neutral-400 dark:placeholder-neutral-500"
               />
-            </div>
-            <div
-              class="flex-1 md:overflow-y-auto space-y-2 pr-0.5"
-            >
-              <!-- Card 1 -->
-              <a
-                class="block p-2.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-800/40 border border-neutral-200/80 dark:border-neutral-800 hover:border-sky-500/50 dark:hover:border-sky-500/40 hover:bg-white dark:hover:bg-neutral-800/70 transition-all text-xs group"
-                href="#"
-              >
-                <div class="flex justify-between items-center">
-                  <span class="font-bold text-neutral-900 dark:text-neutral-100 text-[11px] truncate group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors"
-                    >Urban Runners Club</span
-                  >
-                  <span
-                    class="text-[9px] text-emerald-700 dark:text-emerald-400 font-mono bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200/60 dark:border-emerald-800/60 shrink-0 ml-2"
-                    >Visited</span
-                  >
-                </div>
-                <div
-                  class="mt-2 flex items-center justify-between text-[10px] text-neutral-500 dark:text-neutral-400 pt-1.5 border-t border-neutral-200/60 dark:border-neutral-800/60"
-                >
-                  <span class="font-mono flex items-center gap-1.5">
-                    <i class="fa-solid fa-user-group text-[9px]"></i> 4 peers from past rooms
-                  </span>
-                </div>
-              </a>
 
-              <!-- Card 2 -->
+              <!-- Autocomplete Dropdown Popup -->
               <div
-                class="p-2.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-800/40 border border-neutral-200/80 dark:border-neutral-800 hover:border-sky-500/50 dark:hover:border-sky-500/40 hover:bg-white dark:hover:bg-neutral-800/70 transition-all text-xs group"
-              >
-                <div class="flex justify-between items-center">
-                  <span class="font-bold text-neutral-900 dark:text-neutral-100 text-[11px] truncate group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors"
-                    >Film Camera Guild</span
-                  >
-                  <span
-                    class="text-[9px] text-sky-700 dark:text-sky-400 font-mono bg-sky-50 dark:bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-200/60 dark:border-sky-800/60 shrink-0 ml-2"
-                    >Member</span
-                  >
-                </div>
-                <div
-                  class="mt-2 flex items-center justify-between text-[10px] text-neutral-500 dark:text-neutral-400 pt-1.5 border-t border-neutral-200/60 dark:border-neutral-800/60"
-                >
-                  <span class="font-mono flex items-center gap-1.5">
-                    <i class="fa-solid fa-user-group text-[9px]"></i> 7 peers from past rooms
-                  </span>
-                </div>
-              </div>
+                id="autocompleteDropdown"
+                class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto"
+              ></div>
+            </div>
+
+            <!-- Container for Group Cards -->
+            <div id="searchResultsContainer" class="flex-1 md:overflow-y-auto space-y-2 pr-0.5">
+              <!-- Default initial content / historical cards -->
             </div>
           </div>
 
@@ -371,7 +336,11 @@
           </div>
 
           <div class="flex-1 md:overflow-y-auto space-y-2 pr-0.5">
-            {% for group in groups %}
+          {% set has_starred = false %}
+          
+          {% for group in groups %}
+            {% if group.is_starred %}
+              {% set has_starred = true %}
               <a href="{{ url_for('group_handler_bp.group', group_id=group.id) }}" class="block">
                 <div
                   class="group border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/40 hover:bg-white dark:hover:bg-neutral-800 hover:border-sky-500/50 dark:hover:border-sky-500/40 p-2.5 rounded-lg transition-all cursor-pointer flex justify-between items-center"
@@ -383,7 +352,7 @@
                     
                     <div class="min-w-0">
                       <h4 class="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-                        {{ group.group_name }}
+                        {{ group.group_name }} <span class="font-normal text-neutral-500 dark:text-neutral-400">by {{ group.creator_name }}</span>
                       </h4>
                       <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
                         Exploring minimal interface layout parameters.
@@ -391,15 +360,29 @@
                     </div>
                   </div>
                   
-                  <span
-                    class="text-[9px] font-mono bg-white dark:bg-neutral-950 text-neutral-600 dark:text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-800 shrink-0 ml-2"
-                  >
-                    {{ group.settings.security_engine }}
-                  </span>
+                  <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                    <span class="text-amber-400 text-xs px-1" title="Pinned Group">
+                      <i class="fa-solid fa-star"></i>
+                    </span>
+
+                    <span
+                      class="text-[9px] font-mono bg-white dark:bg-neutral-950 text-neutral-600 dark:text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-800 shrink-0"
+                    >
+                      {{ group.settings.security_engine }}
+                    </span>
+                  </div>
                 </div>
               </a>
-            {% endfor %}
-          </div>
+            {% endif %}
+          {% endfor %}
+
+          <!-- Fallback state if the user hasn't starred any groups yet -->
+          {% if not groups|selectattr('is_starred')|list %}
+            <div class="text-center py-6 text-xs text-neutral-500 italic">
+              No starred groups yet. Star a workspace from its navbar to pin it here!
+            </div>
+          {% endif %}
+        </div>
         </section>
       </main>
 

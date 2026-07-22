@@ -86,7 +86,13 @@
         <!-- Combined Action Container (Buttons & Share Info) -->
         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:justify-end">
 
-
+          <button
+            onclick="toggleStarGroupFromRoom(this, '{{ group_id }}')"
+            class="h-9 w-9 bg-neutral-950/40 hover:bg-neutral-900/80 backdrop-blur-md border border-neutral-800/60 hover:border-amber-500/40 rounded-xl flex items-center justify-center transition shadow-sm cursor-pointer group shrink-0"
+            title="Pin group to top"
+          >
+            <i class="{{ 'fa-solid fa-star text-amber-400' if is_starred else 'fa-regular fa-star text-neutral-400 group-hover:text-amber-400' }} text-xs"></i>
+          </button>
           <!-- Meta Readouts & Sharing Controls -->
           <div
             class="flex items-center justify-between gap-3 bg-neutral-950/40 backdrop-blur-md border border-neutral-800/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs h-9 flex-auto sm:flex-initial"

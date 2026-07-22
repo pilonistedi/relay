@@ -446,3 +446,81 @@ function saveCardSettings() {
     alert("An error occurred. Checking connection status.");
   });
 }
+
+/**
+ * Automatically tracks card countdowns and triggers deletion on expiration.
+ * Call this function on page load or pass an array of active drops.
+ */
+function initCardExpirationTimers() {
+  // Query all card containers that hold dynamic expiration timestamps
+  const cards = document.querySelectorAll('[data-expires-at]');
+
+  cards.forEach(card => {
+    const dropId = card.getAttribute('data-drop-id');
+    const expiresAt = new Date(card.getAttribute('data-expires-at')).getTime();
+
+    const timerInterval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = expiresAt - now;
+
+      if (distance <= 0) {
+        clearInterval(timerInterval);
+
+        // Optional UX Toast update
+        if (typeof showToast === 'function') {
+          showToast("Lifespan expired. Dropping file...", "info");
+        }
+
+        // Auto-trigger backend drop deletion endpoint[cite: 1, 2]
+        autoDeleteDrop(groupId, dropId);
+      }
+    }, 1000);
+  });
+}
+
+/**
+ * Non-blocking auto-delete wrapper for expired timers
+ */
+function autoDeleteDrop(groupId, dropId) {
+  fetch(`/group/${groupId}/drop/${dropId}/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      // Smoothly update UI or reload window[cite: 1]
+      window.location.reload(); 
+    }
+  })
+  .catch(err => console.error("Auto-deletion request error:", err));
+}
+
+// Fire timers on DOM content loaded[cite: 1]
+document.addEventListener('DOMContentLoaded', () => {
+  initCardExpirationTimers();
+});
+
+async function toggleStarGroupFromRoom(button, groupId) {
+  try {
+    const response = await fetch(`/api/toggle_star/${groupId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      const icon = button.querySelector("i");
+      if (data.starred) {
+        icon.className = "fa-solid fa-star text-amber-400 text-xs";
+      } else {
+        icon.className = "fa-regular fa-star text-neutral-400 group-hover:text-amber-400 text-xs";
+      }
+    } else if (data.message) {
+      alert(data.message);
+    }
+  } catch (error) {
+    console.error("Failed to toggle star:", error);
+  }
+}

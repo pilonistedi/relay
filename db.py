@@ -56,6 +56,18 @@ class Group(db.Model):
     drops = db.relationship('TemporaryDrop', backref='group', cascade='all, delete-orphan', lazy=True)
     messages = db.relationship('ShoutboxMessage', backref='group', cascade='all, delete-orphan', lazy=True)
 
+class StarredGroup(db.Model):
+    __tablename__ = 'starred_groups'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id', ondelete='CASCADE'), nullable=False)
+    starred_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'group_id', name='uq_user_starred_group'),
+    )
+
 
 # ============================================================
 # 3. GROUP CONFIGURATIONS (Scoped by Group ID)

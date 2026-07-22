@@ -1,11 +1,12 @@
-from flask import Flask, render_template, session, redirect, url_for
+from flask import Flask, render_template, session, redirect, request, jsonify
 from flask_cors import CORS
-from db import db, Group, GroupConfig, User
+from db import db, Group, GroupConfig, User, StarredGroup
 from api.auth import auth_bp
 from api.group_handler import group_handler_bp
 from api.upload import upload_bp
 from api.chat import chat_bp
 from api.card_functions import card_functions_bp
+from api.admin import admin_bp
 import os
 
 def get_group_configs(target_group_id):
@@ -60,6 +61,7 @@ def create_app():
     app.register_blueprint(upload_bp)
     app.register_blueprint(chat_bp)
     app.register_blueprint(card_functions_bp)
+    app.register_blueprint(admin_bp)
 
     @app.context_processor
     def utility_processor():
@@ -83,26 +85,55 @@ def create_app():
         groups = Group.query.order_by(Group.created_at.desc()).all()
         email = db.session.query(User.email).filter(User.id == user_id).scalar().lower()
         
-        # Process each group to attach a clean, targeted settings dictionary
+        starred_group_ids = set(
+            row.group_id for row in StarredGroup.query.filter_by(user_id=user_id).all()
+        )
+
         for group in groups:
-            # Query ONLY the security engine and identity icon rows
             config_rows = GroupConfig.query.filter(
                 GroupConfig.group_id == group.id,
                 GroupConfig.setting_key.in_(['security_engine', 'identity_icon'])
             ).all()
             
-            # Build the mini-settings dictionary
             settings_dict = {row.setting_key: row.setting_value for row in config_rows}
-            
-            # Set reliable defaults in case they don't exist yet
             settings_dict.setdefault('security_engine', 'Open Hub Access')
             settings_dict.setdefault('identity_icon', '🚀')
-            
-            # Attach it to the group object so it is easily accessible in the loop
             group.settings = settings_dict
 
+            group.creator_name = (
+                group.creator.display_username or group.creator.email.split('@')[0]
+                if group.creator else "Unknown"
+            )
+
+            group.is_starred = group.id in starred_group_ids
+
+        groups.sort(key=lambda g: g.is_starred, reverse=True)
+
         return render_template('feed.html', groups=groups, email=email)
-    
+
+    @app.route('/api/search_groups', methods=['GET'])
+    def search_groups():
+        query = request.args.get('q', '').strip()
+        if not query:
+            return jsonify([])
+
+        # Query groups matching the search string (case-insensitive)
+        matched_groups = Group.query.filter(Group.group_name.ilike(f"%{query}%")).limit(6).all()
+
+        results = []
+        for g in matched_groups:
+            # Fetch the icon setting if stored in GroupConfig
+            icon_row = GroupConfig.query.filter_by(group_id=g.id, setting_key='identity_icon').first()
+            icon = icon_row.setting_value if icon_row else '🚀'
+
+            results.append({
+                'id': g.id,
+                'group_name': g.group_name,
+                'icon': icon
+            })
+
+        return jsonify(results)
+        
     @app.route("/auth")
     def auth():
         return render_template('auth.html')
