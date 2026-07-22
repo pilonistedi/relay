@@ -1,339 +1,425 @@
 <!doctype html>
 <html
+  id="htmlTag"
   lang="en"
-  class="h-full bg-neutral-50 text-neutral-800 antialiased selection:bg-sky-500 selection:text-white"
+  class="h-full bg-neutral-100 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-100 antialiased selection:bg-sky-500 selection:text-white"
 >
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relay Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Configure Tailwind script to support class-based dark mode
+      tailwind.config = {
+        darkMode: 'class',
+      };
+    </script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <style>
+      /* Dynamic Responsive Scrollbar Styles */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 8px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 8px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      .dark ::-webkit-scrollbar-track {
+        background: #171717;
+      }
+
+      .dark ::-webkit-scrollbar-thumb {
+        background: #333333;
+      }
+
+      .dark ::-webkit-scrollbar-thumb:hover {
+        background: #444444;
+      }
+
+      ::-webkit-scrollbar-button,
+      ::-webkit-scrollbar-corner {
+        display: none !important;
+        background: transparent;
+      }
+
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 #f1f5f9;
+      }
+
+      .dark * {
+        scrollbar-color: #333333 #171717;
+      }
+    </style>
   </head>
   <body
     id="canvasBody"
-    class="min-h-screen md:h-screen flex flex-col p-4 bg-gradient-to-br from-neutral-50 via-neutral-100/60 to-neutral-50 max-w-5xl mx-auto w-full gap-4 md:overflow-hidden font-sans transition-all duration-300"
+    class="min-h-screen md:h-screen w-full flex flex-col items-center p-3 sm:p-5 bg-neutral-100/80 dark:bg-neutral-950 md:overflow-hidden font-sans transition-colors duration-200"
   >
-    <!-- Top Micro Header -->
-    <header
-      class="flex items-center justify-between w-full border-b border-neutral-200/60 pb-2 shrink-0 gap-2"
-    >
-      <a href="{{ url_for('index') }}">
-        <div class="flex items-center gap-2">
-          <div
-            class="w-7 h-7 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-lg flex items-center justify-center text-white text-xs shadow-sm shrink-0"
-          >
-            <i class="fa-solid fa-hubspot"></i>
-          </div>
-          <h1 class="text-xs font-semibold tracking-tight text-neutral-900 truncate">
-            Relay Hub
-          </h1>
-        </div>
-      </a>
-
-      <div class="flex items-center gap-2 sm:gap-3">
-        {% if session.get('user_id') %}
-          <!-- User Status: Logged In (Show Avatar & Email, then Sign Out) -->
-          <span class="text-xs font-medium text-neutral-600 hidden sm:inline truncate max-w-[150px]">
-            {{ email }}
-          </span>
-
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-neutral-100 to-neutral-200 border border-neutral-200/80 flex items-center justify-center text-xs font-semibold text-neutral-600 uppercase transition-colors hover:bg-neutral-200/50 shrink-0">
-            {{ session.get('display_username', email)[:1] }}
-          </div>
-
-          <a
-            href="{{ url_for('auth_bp.logout') }}"
-            class="flex gap-2 sm:gap-4 justify-center items-center text-[11px] font-medium text-neutral-500 hover:text-neutral-900 px-2 py-1 sm:px-2.5 rounded-md hover:bg-neutral-100/70 border border-transparent hover:border-neutral-200/40 transition-all duration-200 shrink-0"
-          >
-            <span class="hidden xs:inline">Sign Out</span>
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-          </a>
-
-        {% else %}
-          <!-- User Status: Logged Out (Show Sign In) -->
-          <a
-            href="{{ url_for('auth_bp.auth') }}"
-            class="text-[11px] font-medium text-neutral-500 hover:text-neutral-900 px-2.5 py-1 rounded-md hover:bg-neutral-100/70 border border-transparent hover:border-neutral-200/40 transition-all duration-200 shrink-0"
-          >
-            Sign In
-          </a>
-        {% endif %}
-      </div>
-    </header>
-
-    <!-- Main Dynamic Core Matrix -->
-    <main
-      class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0 md:overflow-hidden"
-    >
-      <!-- ENGINE NEXUS: Alternates between Search Results & Group Creation (7 Cols) -->
-      <section
-        class="md:col-span-7 flex flex-col bg-white border border-neutral-200/90 rounded-xl p-4 md:overflow-hidden shadow-sm shrink-0 md:shrink"
+    <!-- Centered Container Wrapper -->
+    <div class="flex flex-col h-full w-full max-w-5xl gap-3 sm:gap-4">
+      
+      <!-- Top Micro Header -->
+      <header
+        class="flex items-center justify-between w-full border-b border-neutral-200/80 dark:border-neutral-800/80 pb-3 shrink-0 gap-2"
       >
-        <!-- Toggle Tabs for the Nexus Panel -->
-        <div
-          class="flex border-b border-neutral-200/60 pb-2.5 mb-3 shrink-0 gap-4 text-xs font-bold uppercase tracking-wider"
-        >
-          <button
-            id="tabSearch"
-            onclick="toggleNexus('search')"
-            class="text-neutral-900 border-b-2 border-sky-500 pb-1 flex items-center gap-1.5 transition"
-          >
-            <i class="fa-solid fa-magnifying-glass text-sky-500"></i> Find
-            Circles
-          </button>
-          <button
-            id="tabCreate"
-            onclick="toggleNexus('create')"
-            class="text-neutral-400 hover:text-neutral-600 pb-1 flex items-center gap-1.5 transition"
-          >
-            <i class="fa-solid fa-square-plus"></i> Initialize
-          </button>
-        </div>
-
-        <!-- STATE A: Pure Search Portal -->
-        <div id="nexusSearchArea" class="flex-1 flex flex-col min-h-0">
-          <div class="relative shrink-0 mb-3">
-            <i
-              class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-[11px] text-neutral-400"
-            ></i>
-            <input
-              type="text"
-              placeholder="Type keyword, tag, or past location..."
-              class="w-full bg-neutral-50 border border-neutral-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-neutral-800 focus:outline-none focus:border-sky-500 transition placeholder-neutral-400"
-            />
-          </div>
-          <!-- Static cards moved here -->
-          <div
-            class="flex-1 md:overflow-y-auto space-y-2 pr-0.5"
-          >
-            <!-- Suggestion Element Card: Urban Runners Club -->
-            <a
-              class="block p-2 rounded-lg bg-white border border-neutral-200/60 shadow-sm hover:border-sky-500/30 transition text-xs"
-              href="#"
+        <a href="{{ url_for('index') }}" class="group">
+          <div class="flex items-center gap-2.5">
+            <div
+              class="w-7 h-7 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-lg flex items-center justify-center text-white text-xs shadow-sm group-hover:scale-105 transition-transform shrink-0"
             >
-              <div class="flex justify-between items-center">
-                <span class="font-bold text-neutral-800 text-[11px] truncate"
-                  >Urban Runners Club</span
-                >
-                <span
-                  class="text-[9px] text-emerald-600 font-mono bg-emerald-50 px-1 rounded border border-emerald-100 shrink-0 ml-2"
-                  >Visited</span
-                >
-              </div>
-              <div
-                class="mt-1.5 flex items-center justify-between text-[10px] text-neutral-400 pt-1.5 border-t border-neutral-100"
-              >
-                <span class="font-mono flex items-center gap-1">
-                  <i class="fa-solid fa-user-group text-[9px]"></i> 4 peers from
-                  past rooms
-                </span>
-              </div>
+              <i class="fa-solid fa-hubspot"></i>
+            </div>
+            <h1 class="text-xs font-bold tracking-tight text-neutral-900 dark:text-neutral-100 truncate">
+              Relay Hub
+            </h1>
+          </div>
+        </a>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Theme Toggle Button -->
+          <button
+            id="themeToggleBtn"
+            onclick="toggleTheme()"
+            type="button"
+            class="w-7 h-7 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex items-center justify-center text-xs text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm transition"
+            title="Toggle Theme"
+          >
+            <i id="themeToggleIcon" class="fa-solid fa-moon"></i>
+          </button>
+
+          {% if session.get('user_id') %}
+            <!-- User Status: Logged In -->
+            <span class="text-xs font-medium text-neutral-600 dark:text-neutral-400 hidden sm:inline truncate max-w-[150px]">
+              {{ email }}
+            </span>
+
+            <div class="w-7 h-7 rounded-full bg-neutral-200 dark:bg-neutral-800 border border-neutral-300/80 dark:border-neutral-700 flex items-center justify-center text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase shrink-0">
+              {{ session.get('display_username', email)[:1] }}
+            </div>
+
+            <a
+              href="{{ url_for('auth_bp.logout') }}"
+              class="flex gap-1.5 justify-center items-center text-[11px] font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 px-2.5 py-1 rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800 border border-neutral-200/60 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition shrink-0"
+            >
+              <span>Sign Out</span>
+              <i class="fa-solid fa-arrow-right-from-bracket text-[10px]"></i>
             </a>
 
-            <!-- Suggestion Element Card: Film Camera Guild -->
-            <div
-              class="p-2 rounded-lg bg-white border border-neutral-200/60 shadow-sm hover:border-sky-500/30 transition text-xs"
+          {% else %}
+            <!-- User Status: Logged Out -->
+            <a
+              href="{{ url_for('auth_bp.auth') }}"
+              class="text-[11px] font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white px-3 py-1 rounded-md bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 shadow-sm transition shrink-0"
             >
-              <div class="flex justify-between items-center">
-                <span class="font-bold text-neutral-800 text-[11px] truncate"
-                  >Film Camera Guild</span
-                >
-                <span
-                  class="text-[9px] text-sky-600 font-mono bg-sky-50 px-1 rounded border border-sky-100 shrink-0 ml-2"
-                  >Member</span
-                >
-              </div>
-              <div
-                class="mt-1.5 flex items-center justify-between text-[10px] text-neutral-400 pt-1.5 border-t border-neutral-100"
-              >
-                <span class="font-mono flex items-center gap-1">
-                  <i class="fa-solid fa-user-group text-[9px]"></i> 7 peers from
-                  past rooms
-                </span>
-              </div>
-            </div>
-          </div>
+              Sign In
+            </a>
+          {% endif %}
         </div>
+      </header>
 
-        <!-- STATE B: Ultra-Compact Setup deck -->
-        <form
-          id="nexusCreateArea"
-          class="hidden flex-1 flex flex-col justify-between min-h-0"
-          action="{{ url_for('group_handler_bp.create_group') }}" 
-          method="POST"
-          enctype="multipart/form-data"
-        >
-          <input type="hidden" id="selectedPaletteInput" name="selected_palette" value="bg-blue-50/60" />
-          <div class="space-y-3 md:overflow-y-auto pr-0.5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-[9px] font-bold uppercase text-neutral-400 mb-1 tracking-wider">Group Name</label>
-                <input
-                  type="text"
-                  name="group_name"
-                  placeholder="Identity string..."
-                  class="w-full bg-neutral-50 border border-neutral-200 rounded-lg p-1.5 text-xs text-neutral-900 focus:outline-none focus:border-sky-500 transition"
-                  required
-                />
-              </div>
-              <div>
-                <label class="block text-[9px] font-bold uppercase text-neutral-400 mb-1 tracking-wider">Security Engine</label>
-                <select
-                  id="securityEngineSelect"
-                  name="security_engine"
-                  onchange="togglePasswordField()"
-                  class="w-full bg-neutral-50 border border-neutral-200 rounded-lg p-1.5 text-xs text-neutral-700 focus:outline-none focus:border-sky-500 transition"
-                >
-                  <option value="open">Open Hub Access</option>
-                  <option value="secure">Secure / Encrypted</option>
-                </select>
-              </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div id="passwordContainer" class="hidden">
-                <label class="block text-[9px] font-bold uppercase text-neutral-400 mb-1 tracking-wider">Password</label>
-                <input
-                  id="groupPasswordInput"
-                  type="password"
-                  name="group_password"
-                  placeholder="************"
-                  class="w-full bg-neutral-50 border border-neutral-200 rounded-lg p-1.5 text-xs text-neutral-900 focus:outline-none focus:border-sky-500 transition"
-                />
-              </div>
-              <div>
-                <label class="block text-[9px] font-bold uppercase text-neutral-400 mb-1 tracking-wider">Lifespan</label>
-                <select
-                  name="lifespan"
-                  class="w-full bg-neutral-50 border border-neutral-200 rounded-lg p-1.5 text-xs text-neutral-700 focus:outline-none focus:border-sky-500 transition"
-                >
-                  <option value="10080">7 Days</option>
-                  <option value="7200">5 Days</option>
-                  <option value="4320">3 Days</option>
-                  <option value="1440">1 Day</option>
-                  <option value="60">1 Hour</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-[9px] font-bold uppercase text-neutral-400 tracking-wider">Canvas Layout Engine</label>
-              
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div id="ctxImage" class="bg-neutral-50 p-2 rounded-lg border border-neutral-200/60 text-center flex items-center justify-center min-h-[40px]">
-                  <input
-                    type="file"
-                    id="bgImgFile"
-                    name="backdrop_spec"
-                    class="hidden"
-                    onchange="handleImagePreview(this)"
-                  />
-                  <label for="bgImgFile" class="text-[10px] text-neutral-500 cursor-pointer hover:text-sky-500 font-medium w-full">
-                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i>
-                    <span id="lblImg">Upload Backdrop Spec</span>
-                  </label>
-                </div>
-
-                <div id="ctxColor" class="bg-neutral-50 p-2 rounded-lg border border-neutral-200/60 flex items-center justify-center gap-2 min-h-[40px] flex-wrap">
-                  <button type="button" onclick="applyPreset('bg-blue-50/60')" class="w-4 h-4 rounded bg-blue-100 border border-blue-300 hover:scale-110 transition shrink-0"></button>
-                  <button type="button" onclick="applyPreset('bg-cyan-50/60')" class="w-4 h-4 rounded bg-cyan-100 border border-cyan-300 hover:scale-110 transition shrink-0"></button>
-                  <button type="button" onclick="applyPreset('bg-purple-50/60')" class="w-4 h-4 rounded bg-purple-100 border border-purple-300 hover:scale-110 transition shrink-0"></button>
-                  <button type="button" onclick="applyPreset('bg-emerald-50/60')" class="w-4 h-4 rounded bg-emerald-100 border border-emerald-300 hover:scale-110 transition shrink-0"></button>
-                  <button type="button" onclick="applyPreset('bg-amber-50/60')" class="w-4 h-4 rounded bg-amber-100 border border-amber-300 hover:scale-110 transition shrink-0"></button>
-                  <button type="button" onclick="applyPreset('bg-rose-50/60')" class="w-4 h-4 rounded bg-rose-100 border border-rose-300 hover:scale-110 transition shrink-0"></button>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-[9px] font-bold uppercase text-neutral-400 mb-1 tracking-wider">Description Blueprint</label>
-              <textarea
-                rows="2"
-                name="description"
-                placeholder="Manifesto context..."
-                class="w-full bg-neutral-50 border border-neutral-200 rounded-lg p-2 text-xs text-neutral-900 focus:outline-none focus:border-sky-500 transition resize-none"
-              ></textarea>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            class="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-semibold py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition mt-2 shrink-0"
-          >
-            Launch Live Group
-          </button>
-        </form>
-      </section>
-
-      <!-- COLUMN 2: History & Overlap Recommendations (5 Cols) -->
-      <section
-        class="md:col-span-5 flex flex-col bg-white/60 backdrop-blur-sm border border-neutral-200/80 rounded-xl p-4 md:overflow-hidden shadow-sm shrink-0 md:shrink"
+      <!-- Main Dynamic Core Matrix -->
+      <main
+        class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0 md:overflow-hidden"
       >
-        <div class="border-b border-neutral-200/60 pb-2.5 mb-3 shrink-0">
-          <h3
-            class="text-xs font-bold uppercase text-neutral-400 tracking-wider flex items-center gap-1.5"
-          >
-            <i class="fa-solid fa-network-wired text-sky-500"></i> Suggested
-            Connections
-          </h3>
-        </div>
-
-        <!-- Dynamic loop moved here -->
-        <div class="flex-1 md:overflow-y-auto space-y-2 pr-0.5">
-          {% for group in groups %}
-            <a href="{{ url_for('group_handler_bp.group', group_id=group.id) }}" class="block">
-              <div
-                class="group border border-neutral-100 bg-neutral-50/50 hover:bg-white hover:border-sky-500/30 p-2.5 rounded-lg transition-all cursor-pointer flex justify-between items-center"
+        <!-- ENGINE NEXUS (7 Cols) -->
+        <section
+          class="md:col-span-7 flex flex-col bg-white dark:bg-neutral-900/90 border border-neutral-200/90 dark:border-neutral-800/80 rounded-xl p-4 md:overflow-hidden shadow-sm shrink-0 md:shrink"
+        >
+          <!-- Toggle Tabs -->
+          <div class="flex flex-wrap items-center gap-3 border-b border-neutral-200/80 dark:border-neutral-800 pb-3 mb-3 shrink-0 text-xs font-bold uppercase tracking-wider">
+            <!-- Tabs -->
+            <div class="flex items-center gap-4">
+              <button
+                id="tabSearch"
+                onclick="toggleNexus('search')"
+                class="text-neutral-900 dark:text-neutral-100 border-b-2 border-sky-500 pb-1 flex items-center gap-1.5 transition"
               >
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <!-- Dynamic Identity Icon -->
-                  <div class="w-7 h-7 bg-neutral-100 rounded-md flex items-center justify-center text-sm shrink-0 border border-neutral-200/40">
-                    {{ group.settings.identity_icon }}
+                <i class="fa-solid fa-magnifying-glass text-sky-500"></i> Find Circles
+              </button>
+              <button
+                id="tabCreate"
+                onclick="toggleNexus('create')"
+                class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 pb-1 flex items-center gap-1.5 transition"
+              >
+                <i class="fa-solid fa-square-plus"></i> Initialize
+              </button>
+            </div>
+
+            <!-- Divider -->
+            <div class="hidden sm:block w-px h-5 bg-neutral-200 dark:bg-neutral-800"></div>
+
+            <!-- Join via Invite Code Bar -->
+            <form action="{{ url_for('group_handler_bp.join_by_invite') }}" method="POST" class="flex items-center gap-2 ml-auto text-xs font-normal tracking-normal">
+              <span class="hidden md:inline text-neutral-500 dark:text-neutral-400 font-semibold uppercase tracking-wider text-[10px]">
+                <i class="fa-solid fa-ticket mr-1 text-sky-500"></i> Invite
+              </span>
+              <input 
+                type="text" 
+                name="invite_code" 
+                placeholder="Enter code" 
+                class="bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 w-28 md:w-36 transition placeholder:text-neutral-400 dark:placeholder:text-neutral-600"
+                maxlength="8"
+                pattern="[A-Z0-9]{8}"
+                required 
+              />
+              <button type="submit" class="bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition whitespace-nowrap shadow-sm">
+                Join
+              </button>
+            </form>
+          </div>
+
+          <!-- STATE A: Pure Search Portal -->
+          <div id="nexusSearchArea" class="flex-1 flex flex-col min-h-0">
+            <div class="relative shrink-0 mb-3">
+              <i
+                class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-[11px] text-neutral-400 dark:text-neutral-500"
+              ></i>
+              <input
+                type="text"
+                placeholder="Type keyword, tag, or past location..."
+                class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition placeholder-neutral-400 dark:placeholder-neutral-500"
+              />
+            </div>
+            <div
+              class="flex-1 md:overflow-y-auto space-y-2 pr-0.5"
+            >
+              <!-- Card 1 -->
+              <a
+                class="block p-2.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-800/40 border border-neutral-200/80 dark:border-neutral-800 hover:border-sky-500/50 dark:hover:border-sky-500/40 hover:bg-white dark:hover:bg-neutral-800/70 transition-all text-xs group"
+                href="#"
+              >
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-neutral-900 dark:text-neutral-100 text-[11px] truncate group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors"
+                    >Urban Runners Club</span
+                  >
+                  <span
+                    class="text-[9px] text-emerald-700 dark:text-emerald-400 font-mono bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200/60 dark:border-emerald-800/60 shrink-0 ml-2"
+                    >Visited</span
+                  >
+                </div>
+                <div
+                  class="mt-2 flex items-center justify-between text-[10px] text-neutral-500 dark:text-neutral-400 pt-1.5 border-t border-neutral-200/60 dark:border-neutral-800/60"
+                >
+                  <span class="font-mono flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-group text-[9px]"></i> 4 peers from past rooms
+                  </span>
+                </div>
+              </a>
+
+              <!-- Card 2 -->
+              <div
+                class="p-2.5 rounded-lg bg-neutral-50/50 dark:bg-neutral-800/40 border border-neutral-200/80 dark:border-neutral-800 hover:border-sky-500/50 dark:hover:border-sky-500/40 hover:bg-white dark:hover:bg-neutral-800/70 transition-all text-xs group"
+              >
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-neutral-900 dark:text-neutral-100 text-[11px] truncate group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors"
+                    >Film Camera Guild</span
+                  >
+                  <span
+                    class="text-[9px] text-sky-700 dark:text-sky-400 font-mono bg-sky-50 dark:bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-200/60 dark:border-sky-800/60 shrink-0 ml-2"
+                    >Member</span
+                  >
+                </div>
+                <div
+                  class="mt-2 flex items-center justify-between text-[10px] text-neutral-500 dark:text-neutral-400 pt-1.5 border-t border-neutral-200/60 dark:border-neutral-800/60"
+                >
+                  <span class="font-mono flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-group text-[9px]"></i> 7 peers from past rooms
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE B: Ultra-Compact Setup deck -->
+          <form
+            id="nexusCreateArea"
+            class="hidden flex-1 flex flex-col justify-between min-h-0"
+            action="{{ url_for('group_handler_bp.create_group') }}" 
+            method="POST"
+            enctype="multipart/form-data"
+          >
+            <input type="hidden" id="selectedPaletteInput" name="selected_palette" value="bg-blue-50/60" />
+            <div class="space-y-3 md:overflow-y-auto pr-0.5">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Group Name</label>
+                  <input
+                    type="text"
+                    name="group_name"
+                    placeholder="Identity string..."
+                    class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg p-1.5 text-xs text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition"
+                    required
+                  />
+                </div>
+                <div>
+                  <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Security Engine</label>
+                  <select
+                    id="securityEngineSelect"
+                    name="security_engine"
+                    onchange="togglePasswordField()"
+                    class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg p-1.5 text-xs text-neutral-800 dark:text-neutral-200 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition"
+                  >
+                    <option value="open">Open Hub Access</option>
+                    <option value="secure">Secure / Encrypted</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div id="passwordContainer" class="hidden">
+                  <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Password</label>
+                  <input
+                    id="groupPasswordInput"
+                    type="password"
+                    name="group_password"
+                    placeholder="************"
+                    class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg p-1.5 text-xs text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Lifespan</label>
+                  <select
+                    name="lifespan"
+                    class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg p-1.5 text-xs text-neutral-800 dark:text-neutral-200 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition"
+                  >
+                    <option value="10080">7 Days</option>
+                    <option value="7200">5 Days</option>
+                    <option value="4320">3 Days</option>
+                    <option value="1440">1 Day</option>
+                    <option value="60">1 Hour</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-wider">Canvas Layout Engine</label>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div id="ctxImage" class="bg-neutral-50 dark:bg-neutral-950 p-2 rounded-lg border border-neutral-200 dark:border-neutral-800 text-center flex items-center justify-center min-h-[40px]">
+                    <input
+                      type="file"
+                      id="bgImgFile"
+                      name="backdrop_spec"
+                      class="hidden"
+                      onchange="handleImagePreview(this)"
+                    />
+                    <label for="bgImgFile" class="text-[10px] text-neutral-600 dark:text-neutral-400 cursor-pointer hover:text-sky-500 font-medium w-full">
+                      <i class="fa-solid fa-cloud-arrow-up mr-1 text-sky-500"></i>
+                      <span id="lblImg">Upload Backdrop Spec</span>
+                    </label>
+                  </div>
+
+                  <div id="ctxColor" class="bg-neutral-50 dark:bg-neutral-950 p-2 rounded-lg border border-neutral-200 dark:border-neutral-800 flex items-center justify-center gap-2 min-h-[40px] flex-wrap">
+                    <button type="button" onclick="applyPreset('bg-blue-50/60')" class="w-4 h-4 rounded bg-blue-100 dark:bg-blue-900/60 border border-blue-300 dark:border-blue-700 hover:scale-110 transition shrink-0"></button>
+                    <button type="button" onclick="applyPreset('bg-cyan-50/60')" class="w-4 h-4 rounded bg-cyan-100 dark:bg-cyan-900/60 border border-cyan-300 dark:border-cyan-700 hover:scale-110 transition shrink-0"></button>
+                    <button type="button" onclick="applyPreset('bg-purple-50/60')" class="w-4 h-4 rounded bg-purple-100 dark:bg-purple-900/60 border border-purple-300 dark:border-purple-700 hover:scale-110 transition shrink-0"></button>
+                    <button type="button" onclick="applyPreset('bg-emerald-50/60')" class="w-4 h-4 rounded bg-emerald-100 dark:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-700 hover:scale-110 transition shrink-0"></button>
+                    <button type="button" onclick="applyPreset('bg-amber-50/60')" class="w-4 h-4 rounded bg-amber-100 dark:bg-amber-900/60 border border-amber-300 dark:border-amber-700 hover:scale-110 transition shrink-0"></button>
+                    <button type="button" onclick="applyPreset('bg-rose-50/60')" class="w-4 h-4 rounded bg-rose-100 dark:bg-rose-900/60 border border-rose-300 dark:border-rose-700 hover:scale-110 transition shrink-0"></button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[9px] font-bold uppercase text-neutral-500 dark:text-neutral-400 mb-1 tracking-wider">Description Blueprint</label>
+                <textarea
+                  rows="2"
+                  name="description"
+                  placeholder="Manifesto context..."
+                  class="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg p-2 text-xs text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition resize-none placeholder-neutral-400 dark:placeholder-neutral-500"
+                ></textarea>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-neutral-900 dark:bg-sky-600 hover:bg-neutral-800 dark:hover:bg-sky-500 active:bg-neutral-950 text-white font-semibold py-2 rounded-lg text-[10px] uppercase tracking-wider transition mt-3 shrink-0 shadow-sm"
+            >
+              Launch Live Group
+            </button>
+          </form>
+        </section>
+
+        <!-- COLUMN 2: History & Overlap Recommendations (5 Cols) -->
+        <section
+          class="md:col-span-5 flex flex-col bg-white dark:bg-neutral-900/90 border border-neutral-200/90 dark:border-neutral-800/80 rounded-xl p-4 md:overflow-hidden shadow-sm shrink-0 md:shrink"
+        >
+          <div class="border-b border-neutral-200/80 dark:border-neutral-800 pb-3 mb-3 shrink-0">
+            <h3
+              class="text-xs font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-wider flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-network-wired text-sky-500"></i> Suggested Connections
+            </h3>
+          </div>
+
+          <div class="flex-1 md:overflow-y-auto space-y-2 pr-0.5">
+            {% for group in groups %}
+              <a href="{{ url_for('group_handler_bp.group', group_id=group.id) }}" class="block">
+                <div
+                  class="group border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/40 hover:bg-white dark:hover:bg-neutral-800 hover:border-sky-500/50 dark:hover:border-sky-500/40 p-2.5 rounded-lg transition-all cursor-pointer flex justify-between items-center"
+                >
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-7 h-7 bg-neutral-100 dark:bg-neutral-800 rounded-md flex items-center justify-center text-sm shrink-0 border border-neutral-200 dark:border-neutral-700">
+                      {{ group.settings.identity_icon }}
+                    </div>
+                    
+                    <div class="min-w-0">
+                      <h4 class="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+                        {{ group.group_name }}
+                      </h4>
+                      <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+                        Exploring minimal interface layout parameters.
+                      </p>
+                    </div>
                   </div>
                   
-                  <div class="min-w-0">
-                    <h4 class="text-xs font-semibold text-neutral-900 truncate">
-                      {{ group.group_name }}
-                    </h4>
-                    <p class="text-[11px] text-neutral-500 truncate mt-0.5">
-                      Exploring minimal interface layout parameters.
-                    </p>
-                  </div>
+                  <span
+                    class="text-[9px] font-mono bg-white dark:bg-neutral-950 text-neutral-600 dark:text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-800 shrink-0 ml-2"
+                  >
+                    {{ group.settings.security_engine }}
+                  </span>
                 </div>
-                
-                <!-- Dynamic Security Engine Badge -->
-                <span
-                  class="text-[9px] font-mono bg-white text-neutral-500 px-1.5 py-0.5 rounded border border-neutral-200/60 shrink-0 ml-2"
-                >
-                  {{ group.settings.security_engine }}
-                </span>
-              </div>
-            </a>
-          {% endfor %}
-        </div>
-      </section>
-    </main>
+              </a>
+            {% endfor %}
+          </div>
+        </section>
+      </main>
 
-    <!-- Brand Anchor Component Footer -->
-    <footer class="mt-auto pt-2 flex justify-center shrink-0">
-      <a
-        href="https://critique-production.up.railway.app/critique_landing"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-1 text-[9px] tracking-wide uppercase text-neutral-400 bg-white/95 backdrop-blur px-2.5 py-1 rounded-full border border-neutral-200 transition shadow-sm group"
-      >
-        <span>Powered by</span>
-        <span
-          class="text-neutral-600 group-hover:text-sky-500 font-semibold transition-colors"
-          >Critique</span
+      <!-- Brand Anchor Component Footer -->
+      <footer class="mt-auto pt-1 flex justify-center shrink-0">
+        <a
+          href="https://critique-production.up.railway.app/critique_landing"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 text-[9px] tracking-wide uppercase text-neutral-500 dark:text-neutral-400 bg-white/80 dark:bg-neutral-900/80 backdrop-blur px-3 py-1 rounded-full border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition shadow-sm group"
         >
-      </a>
-    </footer>
+          <span>Powered by</span>
+          <span
+            class="text-neutral-700 dark:text-neutral-200 group-hover:text-sky-500 font-semibold transition-colors"
+            >Critique</span
+          >
+        </a>
+      </footer>
+
+    </div>
 
     <!-- Logic Script Control Engine -->
     <script src="/static/script/feed.js"></script>

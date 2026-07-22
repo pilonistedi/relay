@@ -1,3 +1,36 @@
+// Dark/Light Mode Theme Toggle Logic
+function initTheme() {
+  const html = document.documentElement;
+  const icon = document.getElementById("themeToggleIcon");
+  
+  // Check localStorage or system preference
+  const savedTheme = localStorage.getItem("theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+    html.classList.add("dark");
+    if (icon) icon.className = "fa-solid fa-sun";
+  } else {
+    html.classList.remove("dark");
+    if (icon) icon.className = "fa-solid fa-moon";
+  }
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const icon = document.getElementById("themeToggleIcon");
+  
+  if (html.classList.contains("dark")) {
+    html.classList.remove("dark");
+    localStorage.setItem("theme", "light");
+    if (icon) icon.className = "fa-solid fa-moon";
+  } else {
+    html.classList.add("dark");
+    localStorage.setItem("theme", "dark");
+    if (icon) icon.className = "fa-solid fa-sun";
+  }
+}
+
 function toggleNexus(target) {
   const tSearch = document.getElementById("tabSearch");
   const tCreate = document.getElementById("tabCreate");
@@ -8,16 +41,16 @@ function toggleNexus(target) {
     aSearch.classList.remove("hidden");
     aCreate.classList.add("hidden");
     tSearch.className =
-      "text-neutral-900 border-b-2 border-sky-500 pb-1 flex items-center gap-1.5 transition";
+      "text-neutral-900 dark:text-neutral-100 border-b-2 border-sky-500 pb-1 flex items-center gap-1.5 transition";
     tCreate.className =
-      "text-neutral-400 hover:text-neutral-600 pb-1 flex items-center gap-1.5 transition";
+      "text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 pb-1 flex items-center gap-1.5 transition";
   } else {
     aSearch.classList.add("hidden");
     aCreate.classList.remove("hidden");
     tCreate.className =
-      "text-neutral-900 border-b-2 border-sky-500 pb-1 flex items-center gap-1.5 transition";
+      "text-neutral-900 dark:text-neutral-100 border-b-2 border-sky-500 pb-1 flex items-center gap-1.5 transition";
     tSearch.className =
-      "text-neutral-400 hover:text-neutral-600 pb-1 flex items-center gap-1.5 transition";
+      "text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 pb-1 flex items-center gap-1.5 transition";
   }
 }
 
@@ -35,7 +68,7 @@ function handleImagePreview(input) {
   }
 }
 
-// Updated preset handler to store the configuration choice
+// Preset handler storing configuration choice
 function applyPreset(tw) {
   const b = document.getElementById("canvasBody");
   b.style.backgroundImage = "";
@@ -43,19 +76,38 @@ function applyPreset(tw) {
     "min-h-screen md:h-screen flex flex-col p-4 max-w-5xl mx-auto w-full gap-4 md:overflow-hidden font-sans relative transition-all duration-300 pb-16 md:pb-4 " +
     tw;
   
-  // Update the form tracking value securely before submission
   const paletteInput = document.getElementById("selectedPaletteInput");
   if (paletteInput) {
     paletteInput.value = tw;
   }
 }
 
-// Intercept Form Submissions to eliminate raw JSON drops
+function togglePasswordField() {
+  const securitySelect = document.getElementById("securityEngineSelect");
+  const passwordContainer = document.getElementById("passwordContainer");
+  const passwordInput = document.getElementById("groupPasswordInput");
+
+  if (!securitySelect || !passwordContainer || !passwordInput) return;
+
+  if (securitySelect.value === "secure") {
+    passwordContainer.classList.remove("hidden");
+    passwordInput.required = true;
+  } else {
+    passwordContainer.classList.add("hidden");
+    passwordInput.required = false;
+    passwordInput.value = "";
+  }
+}
+
+// Intercept Form Submissions & DOM initialization
 document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  togglePasswordField();
+
   const form = document.getElementById("nexusCreateArea");
   if (form) {
     form.addEventListener("submit", async (event) => {
-      event.preventDefault(); // HALTS standard browser redirection loops
+      event.preventDefault();
 
       const submitBtn = form.querySelector("button[type='submit']");
       const originalText = submitBtn ? submitBtn.innerHTML : "Launch Live Group";
@@ -74,10 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
 
         if (data.success) {
-          // Relocate to global core workspace canvas route string
           window.location.href = "/group/" + data.group_id; 
         } else if (data.redirect_to) {
-          // Redirect the guest straight to authentication screen
           window.location.href = data.redirect_to;
         } else {
           alert(data.message || "Failed to launch the live group."); 
@@ -96,28 +146,4 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-});
-
-function togglePasswordField() {
-  const securitySelect = document.getElementById("securityEngineSelect");
-  const passwordContainer = document.getElementById("passwordContainer");
-  const passwordInput = document.getElementById("groupPasswordInput");
-
-  if (!securitySelect || !passwordContainer || !passwordInput) return;
-
-  if (securitySelect.value === "secure") {
-    // Show password field
-    passwordContainer.classList.remove("hidden");
-    passwordInput.required = true;
-  } else {
-    // Hide password field & reset input value
-    passwordContainer.classList.add("hidden");
-    passwordInput.required = false;
-    passwordInput.value = "";
-  }
-}
-
-// Ensure the initial state is synchronized on page load
-document.addEventListener("DOMContentLoaded", () => {
-  togglePasswordField();
 });

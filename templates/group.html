@@ -103,13 +103,14 @@
 
             <button
               onclick="
-                navigator.clipboard.writeText(window.location.href);
-                alert('Workspace link copied!');
+                const joinUrl = window.location.origin + '/join/{{ group.invite_code }}';
+                navigator.clipboard.writeText(joinUrl);
+                alert('Invite link copied!');
               "
               class="text-neutral-400 hover:text-white transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
               <i class="fa-solid fa-link text-[10px] text-neutral-500"></i>
-              <span>Share Workspace</span>
+              <span>Share Invite Link</span>
             </button>
           </div>
 

@@ -261,7 +261,27 @@ def group(group_id):
         is_locked=is_locked, 
         creator_name=creator_name
     )
-    
+
+@group_handler_bp.route("/join", methods=["POST"])
+@group_handler_bp.route("/join/<string:invite_code>", methods=["GET"])
+def join_by_invite(invite_code=None):
+    # If submitted via the form, grab the code from form data
+    if request.method == "POST":
+        invite_code = request.form.get("invite_code", "").strip()
+
+    if not invite_code:
+        return redirect(url_for('index')) # or wherever your dashboard live-reloads
+
+    # 1. Enforce Authentication Guard
+    if not session.get('user_id'):
+        return redirect(url_for('auth'))
+
+    # 2. Fetch the group by invite_code or 404
+    group = Group.query.filter_by(invite_code=invite_code).first_or_404()
+
+    # 3. Redirect seamlessly to the primary group workspace
+    return redirect(url_for('group_handler_bp.group', group_id=group.id))
+
 @group_handler_bp.route('/join/<int:group_id>', methods=['POST'])
 def join_group(group_id):
     pass
